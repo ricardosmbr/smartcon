@@ -1,0 +1,57 @@
+{% extends "contrato.html" %}
+{% block dash_content  %}
+<div class="container">
+    <div class="account-wall col">
+        <h2 class="text-center">Recibo de Envio de Contrato para Blockchain</h2>
+        <form class="form-signin text-center" method="POST">
+            {% csrf_token %}
+            <fieldset class="carteira" >
+                <table class="table">
+                    <thead class="thead-light">
+                      <th >Nome : <font color="green">{{ contrato.name }}</font></th>
+                      <th >Cliente: <font color="green">{{ contrato.id_cliente.name }}</font></th>
+                    </thead>
+                {% if recibo %}
+                    <thead>
+                        <th >Block Number</th>
+                        <th >{{ recibo.blockNumber }}</th>
+                    </thead>
+                    {% if recibo.contractAddress %}
+                    <thead>
+                        <th >Contract Address</th>
+                        <th ><a href="https://ropsten.etherscan.io/address/{{ recibo.contractAddress}}" target="blank">{{ recibo.contractAddress}}</a></th>
+                    </thead>
+                    {% else %}
+                    <thead>
+                        <th >Contract Address</th>
+                        <th ><a href="https://ropsten.etherscan.io/address/{{ recibo.to}}" target="blank">{{ recibo.to}}</a></th>
+                    </thead>
+                    {% endif %}
+                    <thead>              
+                        <th >Carteira</th>
+                        <th ><a href="https://ropsten.etherscan.io/address/{{ recibo.from}}" target="blank">{{ recibo.from}}</a></th>
+                    </thead><thead>
+                        <th >Gas Usado</th>
+                        <th >{{ recibo.gasUsed}}</th>                       
+                    </thead><thead>
+                        <th >Status</th>
+                        <th ><center><div class="{% if recibo.status %}led-green{% else %}led-red{% endif %}"></div></center></th>                                     
+                {% else %} 
+                          
+                <th><p>Nenhum recibo encontrado</p></th>
+                {% endif %} 
+                    </thead>
+                </table>
+                <a href="{% url 'con:contrato_listar' %}">
+                <div class="text-center login">
+                   <button type="button" class="btn btn-lg btn-secondary">
+                            Fechar
+                    </button>
+                </div>
+                </a>
+            </fieldset>
+        </form>  
+    </div>
+    <br>
+</div>
+{% endblock %}

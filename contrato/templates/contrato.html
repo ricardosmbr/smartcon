@@ -1,0 +1,106 @@
+{% extends "base.html" %} 
+{% load static %}
+{% block content %}
+<div class="row col-md-12 ladoe">
+    <div class="col-md-12">
+        <ul class="breadcrumb redondo">
+            {% block breadcrumb %}
+            <li><a href="{% url 'con:contrato' %}">Contrato Painel</a></li>
+            <li>&nbsp; / &nbsp;</li>
+            {% endblock %}
+        </ul>
+    </div>
+    <div class="col-sm-3">
+        <div class="col-md-12">
+            {% block menu_options %}
+            <ul class="breadcrumb redondo">Painel de Contratos</ul>
+            <ul>
+               <li><a href="{% url 'con:contrato_listar' %}">
+                    <i class="fa fa-address-book"></i>
+                    Listar Contratos
+                    </a></li>
+               <li><a href="{% url 'con:contrato' %}">
+                    <i class="fa fa-lock"></i>
+                    Novo Contrato
+                    </a>
+                </li>
+            </ul>
+              <ul class="breadcrumb redondo">Contas de Clientes</ul>
+                <ul>
+                    {% for cli in cliente %}
+                   <li><a href="{% url 'cli:cliente_mostrar' cli.pk %}">
+                        <i class="fa fa-address-book"></i>
+                        {{ cli.name }}
+                        </a>
+                     {% empty %}
+                     <p>Nenhuma conta</p>
+                    </li>
+                    {% endfor %}
+                </ul>
+            <ul class="breadcrumb redondo"></ul>
+            <ul>
+                <li class="text-success">Ultimo IP {{ user.ip_last }}</li>
+            </ul> 
+            </ul> 
+            <ul class="breadcrumb redondo"></ul>
+            <ul>
+                <li><a href="{% url 'con:ajuda' %}">Ajuda</a></li>
+            </ul>
+            {% endblock %}          
+        </div>
+    </div>
+    <div class="col-sm-9 float-right">
+       {% block dash_content %}
+       <div class="row text-center sem">
+          <h2 style="width:100%">Escolha seu Contratos</h2>
+          <div class="col ">
+            <a href="{% url 'con:contrato_token' %}">
+            <div class="modelscon account-wall ">
+               1 Criação de Tokens<br>
+               <img src="{% static 'img/eth.png' %}" >
+               <p>Você mesmo pode criar sua moeda pessoal atravez deste contrato e distribui-lo como quizer</p>  
+            </div>
+            </a>
+            <!--
+            <a href="{% url 'con:contrato' %}">
+              <div class="modelscon account-wall">
+                <h2 style="width:100%">4 Cartorio Digital</h2>
+                <p>Aqui voce assina um documento e ele se torna público e confivel</p>
+                               
+            </div>
+            </a>
+          -->
+          </div>
+          <div class="col " >
+            <a href="{% url 'con:contrato_pagtoken' %}">
+              <div class="modelscon account-wall">
+                2 Transferência de Token<br>
+                <img width="150" height="155"  src="{% static 'img/ether-ether.png' %}" >
+                <p>Transfira sua moeda virtual atravez deste contrato para quem você quizer</p>
+              </div>
+            </a>
+            <!--           
+            <a href="{% url 'con:contrato' %}">
+              <div class="modelscon account-wall">5 </div>
+            </a>
+            -->
+          </div> 
+          <div class="col" >
+            <a href="{% url 'con:contrato_pagamento' %}">
+              <div class="modelscon account-wall">
+                3 Pagamento<br>
+                <img width="150" height="155"  src="{% static 'img/peso-ether.png' %}" >
+                <p>Faça pagamentos em Ether para quem você quizer</p>
+              </div>
+            </a>
+            <!--
+            <a href="{% url 'con:contrato' %}">
+              <div class="modelscon account-wall">6</div>
+            </a>
+          -->
+          </div> 
+        </div>         
+        {% endblock %}
+    </div>
+</div>
+{% endblock %}

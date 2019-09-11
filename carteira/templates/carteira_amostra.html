@@ -1,0 +1,82 @@
+{% extends "cliente.html" %}
+
+{% block dash_content  %}
+<div class="container">
+    <div class="account-wall col">
+        <h2 class="text-center">Carteira</h2>
+        <form class="form-signin text-center" method="POST">
+            {% csrf_token %}
+            {% if success %}
+                <div class="text-success">
+                    <h5> Dados alterados com sucesso</h5>
+                </div>
+            {% endif %}
+            <fieldset class="carteira">
+              <div class="erro_login">
+                    {{ form.non_field_errors }}
+              </div>
+                    {% for field in form %}
+                    <div class="geral_lin">
+                        <div class="car_label">
+                            {{ field.label_tag }}
+                        </div>
+                        <div class="car_field">
+                            {{ field }}
+                            {% if field.html_name   == "private_key" %}
+                                <a onclick = "mostrar()"><span id ='show'  action="hide"><i class="fa fa-eye"></i></span> </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                <div class="erro_login">
+                        {{ field.errors }}
+                </div>
+                    {% endfor %}<br>
+                <div class="col breadcrumb redondo">
+                    <div class="col ">
+                        <h2>Tokens</h2>
+                    </div>
+                    <div class="col ">
+                        <a href="{% url 'car:token_novo' tk %}"><button type="button" class="btn btn-secondary">Adicionar token</button></a>
+                    </div>
+                </div> 
+                <table class="table">
+                    {% if tok %}
+                    <thead class="thead-light">
+                        <th >Nome</th>
+                        <th >simbolo</th>
+                        <th >Saldo</th>
+                        <th ></th>
+                    </thead>
+                    {% endif %}
+                    
+                    {% for token in tok %}
+                    <thead>
+                        <th >{{ token.token }}</th>
+                        <th >{{ token.simbolo }}</th>
+
+                        <th >{{ token.saldo }}</th>
+                        <th ><a onclick = "if (! confirm('Excluir Token ?')) { return false; }"class="confirmation" href="{% url 'car:token_apagar' token.pk %}">
+                        <i class="fa fa-times-circle"></i>
+                        Excluir
+                        </a></th>
+                    </thead>
+                    {% empty %}
+                    Nunhum Token encontrado
+                    {% endfor %}
+                    
+                </table>
+                    <br />
+                    <div class="text-center login">
+                        <a href="{% url 'car:carteira' %}">
+                        <button type="button"  class="btn btn-lg btn-secondary">
+                            Fechar
+                        </button></a>
+                    </div>                 
+
+            </fieldset>
+        </form>  
+
+    </div>
+    <br>
+</div>
+{% endblock %}

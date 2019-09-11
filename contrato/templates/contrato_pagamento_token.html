@@ -1,0 +1,76 @@
+{% extends "contrato.html" %}
+{% load static %}
+{% block dash_content  %}
+<div class="container" >
+    <div class="account-wall col" >
+        <div class="row">
+            <div class="col-sm">
+                <img src="{% static 'img/eth.png' %}">
+            </div>
+            <div class="col-sm-6">
+                <h1 class="text-center">Transferencia de Token</h1>
+            </div>
+            <div class="col-sm"></div>
+        </div>
+        <h2 class="text-center" style="color: black;">Escolha o Token</h2><br>
+        <form class="form-signin text-center" method="POST">
+        	{% csrf_token %}
+        	<fieldset class="resset" >
+                <div class="geral_lin">
+                    <div class="car_label" >
+                        Token
+                    </div>
+                    <div class="car_field">
+                         <select  name="token" required id="id_token"> 
+                         <option value="" selected>---------</option>
+                        {% for car in token %}
+                          <option value="{{ car.id}}" >{{ car.token }}</option>
+                        {% endfor %}
+                        </select> 
+                    </div> 
+                </div>
+                <div ><br>
+                    <h2 class="text-center" style="color: black">Dados do Tomador</h2><br>
+                </div>
+                <div class="erro_login">
+        		  	{{ form.non_field_errors }}
+                </div>
+        		  	{% for field in form %}
+                <div class="geral_lin">
+        		  	<div class="car_label" >
+        		  		{{ field.label_tag }}
+                    </div>
+                    <div class="car_field">
+        		  		{{ field }}
+                    </div>
+                </div>
+                <div class="erro_login">
+    		  		{{ field.errors }}
+                </div>
+        		  	{% endfor %}
+
+                <div class="geral_lin">
+                    <div class="car_label">
+                        <label>Valor</label>
+                    </div>
+                    <div class="car_field">
+                        <input type="text" name="valor" >
+                    </div>
+                </div>
+                <div ><br><br>
+    		  		<button class="btn btn-lg btn-secondary">
+    		  			Enviar
+    		  		</button>
+                    <a href="{% url 'con:contrato' %}">
+                        <button type="button"  class="btn btn-lg btn-danger">
+                            Cancelar
+                        </button>
+                    </a>
+    		  	</div>
+            
+        	</fieldset>
+        </form>        
+    </div>
+    <br>
+</div>
+{% endblock %}
