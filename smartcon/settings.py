@@ -38,11 +38,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'usuario',
     'cliente',
     'carteira',
     'contrato',
     'sistema',
-    'usuario',
+
 ]
 
 MIDDLEWARE = [
@@ -146,6 +147,7 @@ MEDIA_URL = '/contract/'
 LOGIN_URL = 'sis:login'
 LOGOUT_URL = '/'
 LOGIN_REDIRECT_URL = '/ip'
+
 #autera usuario padrão
 AUTH_USER_MODEL =  'usuario.Usuario'
 
