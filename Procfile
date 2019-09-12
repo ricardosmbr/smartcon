@@ -1,0 +1,1 @@
+web: gunicorn smartcon.wsgi --log-file -
