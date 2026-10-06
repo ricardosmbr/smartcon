@@ -1,0 +1,412 @@
+@charset "UTF-8";
+/* Personal css */
+body {
+    background-image: url("../img/contract.jpg");
+    background-position: center;
+    background-size:cover;
+    margin: 0 auto 0 auto;
+    padding:0;
+}
+.redondo {
+  border-radius: 10px;
+}
+.mainbody {
+    background-color: white;
+    min-height: 700px;
+    min-width: 740px;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    opacity: 0.93;
+}
+.footer{
+    min-width: 740px;
+}
+.ladoe {
+  padding-left: 40px;
+}
+.mainbody img{
+    opacity: 1;
+}
+.moldeura {
+    padding:10;
+}
+.mr-3 {
+	  float: left;
+    max-width:250px;
+    max-height:300px;
+    width: auto;
+    height: auto;
+
+}
+.mr-4 {
+	float: right;
+    max-width:250px;
+    max-height:300px;
+    width: auto;
+    height: auto;
+}
+.carteira {
+    font-size: 15px;
+    color: blue;
+}
+
+.painel-editar-texto{
+	padding-left: 150px;
+}
+
+.painel-editar {
+	width: 420px;
+  min-width: 200px;
+	float: right;
+}
+.chain{
+  text-align: center;
+  font-size: 40px;
+  font-family: Comic Sans MS;
+}
+.chainum{
+  background-color: white;
+  background-image: url("../img/distribuido.jpg");
+  background-repeat: no-repeat;
+  background-size:contain;
+  background-position: center;
+  padding: 10px;
+  border-radius: 50%;
+  margin: 10px;
+  height: 400px;
+
+}
+.chaindois{
+  background-color: white;
+  background-image: url("../img/Blockchain.jpg");
+  background-repeat: no-repeat;
+  background-size:cover;
+  background-position: center;
+  padding: 10px;
+  border-radius: 50%;
+  height: 400px;
+  margin: 10px;
+  color: yellow;
+
+}
+
+.chaintres{
+  background-color: white;
+  background-image: url("../img/revolucao.png");
+  background-repeat: no-repeat;
+  background-size:contain;
+  background-position: center;
+  padding: 10px;
+  border-radius: 50%;
+  height: 400px;
+  margin: 10px;
+
+}
+.primeiro {
+  padding: 20px;
+
+}
+.segundo {
+  background-color: lightblue;
+  position: relative;
+  padding: 20px;
+  height: 100%;
+}
+.segundo img{
+  width: 100px;
+  height: 100px;
+}
+
+.resset {
+  color: blue;
+	width: 670px;
+}
+.token {
+  padding-left:100px;
+
+  color: green;
+  width: 600px;
+
+}
+.obs {
+  position: relative;
+  background-color: yellow;
+  top: -50px;
+  left: -14px;
+  font-size: 20px;
+  color: red;
+  height: 60px;
+}
+.toptittle {
+  position: relative;
+  top: -30px;
+  left: -14px;
+  font-size: 20px;
+  height: 60px;
+}
+.login{
+
+  margin: 0 auto 0 auto;
+  width: 20px;
+  width: 250px;
+}
+.login button{
+
+	width: 120px;
+}
+.loginb{
+    width: 520px;
+    height: 40px;
+}
+.control-cadastro {
+	width: 520px;
+}
+.control-cadastro label{
+    width: 120px;
+    float: left;
+}
+.geral_lin{  
+    margin: 0 auto;   
+    height: 40px;
+}
+
+.geral_field{
+    float: right;
+    text-align: left;
+    width: 64%;
+}
+.geral_label{
+
+    padding-right:10px;
+    text-align:right;
+    float: left;
+    width: 36%;
+}
+
+.geral_field_log{
+    float: right;
+    text-align: left;
+    width: 60%;
+}
+.geral_label_log{
+
+    padding-right:10px;
+    text-align:right;
+    float: left;
+    width: 40%;
+}
+.car_field{
+
+    float: right;
+    text-align: left;
+    font-size: 2;
+    width: 82%;
+}
+.car_label{
+
+    padding-right:10px;
+    text-align:right;
+    float: left;
+    width: 18%;
+}
+
+.con_field{
+
+    float: right;
+    text-align: left;
+    width: 78%;
+}
+.con_label{
+ 
+    padding-right:10px;
+    text-align:right;
+    float: left;
+    width: 22%;
+}
+
+.justificado {
+	font-size: 28;
+	text-align: justify;
+}
+
+.footerline {
+	width:1050px;
+    margin: 0 auto 0 auto;
+    padding:0;
+	text-align: center;
+}
+
+.minimo-login{
+  min-width: 240px;
+}
+.form-signin
+{   
+    max-width: 710px;
+    padding: 2px;
+    margin: 0 auto;
+}
+.form-signin .form-signin-heading, .form-signin .checkbox
+{
+    margin-bottom: 10px;
+}
+.form-signin .checkbox
+{
+    font-weight: normal;
+}
+.form-signin .form-control
+{
+    
+    position: relative;
+    font-size: 16px;
+    height: auto;
+    padding: 10px;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+.form-signin .form-control:focus
+{
+    z-index: 2;
+}
+.form-signin input[type="text"]
+{
+    margin-bottom: -1px;
+}
+.form-signin input[type="password"]
+{
+    margin-bottom: 10px;
+}
+.account-wall
+{
+    margin-top: 10px;
+    padding: 20px 0px 20px 0px;
+    background-color: white;
+    -moz-box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+    -webkit-box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+    box-shadow:0px 2px 6px gray;
+}
+
+.profile-img
+{
+    width: 96px;
+    height: 96px;
+    margin: 0 auto 10px;
+    display: block;
+    -moz-border-radius: 50%;
+    -webkit-border-radius: 50%;
+    border-radius: 50%;
+}
+.need-help
+{
+    margin-top: 10px;
+}
+.new-account
+{
+    display: block;
+    margin-top: 10px;
+}
+.need-col
+{
+    margin-top: 40px;
+}
+.content-login{
+  margin-top: 70px;
+}
+.centro {
+    position:fixed;
+    top:25%;
+    left:5%;
+}
+
+.erro_login {
+	color: red;
+}
+
+/* led  */
+
+.led-box {
+  height: 30px;
+  width: 25%;
+  margin: 10px 0;
+  float: left;
+}
+
+.led-box p {
+  font-size: 12px;
+  text-align: center;
+  margin: 1em;
+}
+
+.led-red {
+  margin-bottom: 5px;
+  width: 14px;
+  height: 14px;
+  background-color: #F00;
+  border-radius: 50%;
+  box-shadow: rgba(0, 0, 0, 0.2) 0 -1px 7px 1px, inset #441313 0 -1px 9px, rgba(255, 0, 0, 0.5) 0 2px 12px;
+
+}
+
+.led-green {
+  margin-bottom: 5px;
+  width: 14px;
+  height: 14px;
+  background-color: #ABFF00;
+  border-radius: 50%;
+  box-shadow: rgba(0, 0, 0, 0.2) 0 -1px 7px 1px, inset #304701 0 -1px 9px, #89FF00 0 2px 12px;
+}
+
+/* loaders  */
+.loader {
+  border: 16px solid #f3f3f3; /* Light grey */
+  border-top: 16px solid #3498db; /* Blue */
+  border-radius: 50%;
+  width: 120px;
+  height: 120px;
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* modelos de contratos  */
+
+.modelscon{
+  border-radius: 10px;
+  font-size: 23px;
+  height: 100%;
+  width: 100%;
+  padding: 5px;
+}
+.modelscon:hover {
+  background-color: #E0F8E0;
+  -moz-transform: scale(1.1);
+  -webkit-transform: scale(1.1);
+  transform: scale(1.02);
+  box-shadow:1px 1px 8px green;
+  opacity:0.9; 
+}
+.modelscon p{
+  font-size: 18px;
+  text-align: justify;
+  color: blue; 
+  padding: 15px;
+}
+.sem a:hover{
+  text-decoration:none; 
+}
+.media-dois{
+  margin: 0 auto 0 auto;
+  padding:0;
+  border-radius: 60px;
+  padding: 15px;
+  
+}
+.media-dois img{
+  width: 100px;
+}
+.media-body img{
+  padding: 15px;
+}

@@ -6,13 +6,14 @@ from cliente.models import Cliente
 from .models import Contrato, ContratActions,ContratToken
 from carteira.models import Carteira, CarteiraToken
 from .forms import ContratoNovoForm, EditarContrato,MostrarContrato,PublicarContrato,DistribuirToken,PagamentoToken
-from itertools import chain 
+from itertools import chain
 from .arquivo import Token, Apaga, GravaAbi
 from .fabrica import Fabrica, EnviarToken,TransferirEther
 from web3 import Web3, HTTPProvider
+from web3.exceptions import TransactionNotFound
 from eth_account import Account
 from django.conf import settings
-import json, time
+import json, time, os
 
 @login_required
 def contrato(request):
@@ -73,7 +74,7 @@ def contrato_editar(request,pk):
 		if form.is_valid():
 			form.save()
 			messages.success(request,"Contrato salvo com sucesso",extra_tags='text-success')
-		return redirect('con:contrato_listar')		
+		return redirect('con:contrato_listar')
 	else:
 		form = EditarContrato(instance=contrato)
 	context = {
@@ -92,11 +93,11 @@ def contrato_mostrar(request,pk):
 	except:
 		action = None
 		contrato = None
-	
+
 	if request.method == 'POST':
 		return redirect('con:contrato_listar')
 	if contrato.contract_address == None:
-		contrato.contract_address =	action.to_adress	
+		contrato.contract_address =	action.to_adress
 	context = {
 		'cliente':cliente,
 		'contrato':contrato,
@@ -120,15 +121,16 @@ def contrato_puclicar(request,pk):
 	token = ContratToken.objects.get(id_contrato_id=contrato.id)
 	if request.method == 'POST':
 		request.POST = request.POST.copy()
-		path = 'contract/'+str(contrato.id_cliente.id) +'/'+contrato.name+'.sol'
+		path = os.path.join(settings.BASE_DIR, 'contract', str(contrato.id_cliente.id), contrato.name + '.sol')
 		fab = Fabrica(path,carteira.private_key)
-		numcontrato = fab.enviar()	
-		g = str(numcontrato)
-		if g[0] == 'b':
-			contratonum = Web3.toHex(numcontrato)		
-			form = PublicarContrato(request.POST or None, instance=contrato)	
-			if form.is_valid():							
-				contrato.hash_address = contratonum 
+		numcontrato = fab.enviar()
+		print(numcontrato)
+		if isinstance(numcontrato, (bytes, bytearray)):
+			print()
+			contratonum = Web3.to_hex(numcontrato)
+			form = PublicarContrato(request.POST or None, instance=contrato)
+			if form.is_valid():
+				contrato.hash_address = contratonum
 				contrato.abi = json.dumps(fab.myabi)
 				contrato.ativo = False
 				contrato.save()
@@ -143,12 +145,29 @@ def contrato_puclicar(request,pk):
 
 				return redirect('con:valrecibo', pk)
 			else:
-				messages.success(request,"Erro de validação",extra_tags='text-danger')		
+				messages.success(request,"Erro de validação",extra_tags='text-danger')
 		else:
-			g = g.replace("\'", "\"")
-			j = json.loads(g)
-			if (j.get("code")) == -32000:
-				messages.success(request,"Voce não tem saldo suficiente",extra_tags='text-danger')
+			# O provedor pode devolver um dicionário ou uma exceção com os dados RPC.
+			erro = numcontrato if isinstance(numcontrato, dict) else None
+			if erro is None:
+				for argumento in getattr(numcontrato, 'args', ()):
+					if isinstance(argumento, dict):
+						erro = argumento
+						break
+			codigo_erro = erro.get('code') if erro else None
+			texto_erro = str((erro or {}).get('message', numcontrato)).lower()
+			if codigo_erro in (-32000, -32003) or 'insufficient funds' in texto_erro:
+				messages.error(
+					request,
+					"Não foi possível publicar: saldo insuficiente na carteira para pagar o gas. "
+					"Adicione a moeda nativa da rede e tente novamente."
+				)
+			else:
+				messages.error(
+					request,
+					"Não foi possível enviar o contrato à rede. Tente novamente; "
+					"se o problema continuar, contate o suporte."
+				)
 
 	context = {
 		'form': form,
@@ -163,8 +182,16 @@ def recibo(request,pk):
 	cliente = Cliente.objects.filter(id_usuario = request.user.pk)
 	contrato = Contrato.objects.get(pk=pk)
 	w3 = Web3(HTTPProvider(settings.PROVEDOR))
+	recibo = None
 	while True:
-		recibo = w3.eth.getTransactionReceipt(contrato.hash_address)
+		try:
+			recibo = w3.eth.get_transaction_receipt(contrato.hash_address)
+		except TransactionNotFound:
+			messages.error(
+				request,
+				"A transação ainda não foi encontrada na rede. Verifique se a carteira está conectada à rede correta e tente novamente mais tarde."
+			)
+			break
 
 		if recibo:
 			if contrato.ativo == False:
@@ -176,15 +203,15 @@ def recibo(request,pk):
 					contrato.contract_address = recibo["contractAddress"]
 				else:
 					action.contract_address = recibo["to"]
-					
+
 				action.from_adress = recibo["from"]
 				action.to_adress = recibo["to"]
 				transhash = recibo["transactionHash"]
-				action.transactionHash = Web3.toHex(transhash)
+				action.transactionHash = Web3.to_hex(transhash)
 				action.gasUsed = recibo["gasUsed"]
 				action.id_contrato = Contrato.objects.get(pk=pk)
 				action.save()
-				
+
 				contrato.ativo = True
 				contrato.save()
 				messages.success(request,"Contrato Publicado com sucesso",extra_tags='text-success')
@@ -193,7 +220,7 @@ def recibo(request,pk):
 				break
 
 		time.sleep(1)
-	
+
 	cliente = Cliente.objects.filter(id_usuario = request.user.pk)
 
 	context = {
@@ -234,7 +261,7 @@ def contrato_token(request):
 			carte = Carteira.objects.get(pk=cart)
 			Token(request, carte.public_key)
 			form.save()
-			token = ContratToken()		
+			token = ContratToken()
 			token.token = request.POST.get("token")
 			token.simbolo = request.POST.get("simbolo")
 			token.quantidade = request.POST.get("qtde")
@@ -245,7 +272,7 @@ def contrato_token(request):
 			messages.success(request,"Contrato criado com sucesso",extra_tags='text-success')
 			return redirect('con:contrato_listar')
 	else:
-		form = ContratoNovoForm(user=request.user.id)	
+		form = ContratoNovoForm(user=request.user.id)
 	context = {
 		'form':form,
 		'cliente': cliente,
@@ -261,7 +288,7 @@ def contrato_interar(request,pk):
 	tipo = contrato.tipo
 	if tipo == 1:
 		link = ContratToken.objects.get(id_contrato=contrato.id)
-		link = link.id		
+		link = link.id
 	else:
 		link = 0
 	action = ContratActions.objects.all().filter(id_contrato_id = contrato.id)
@@ -281,7 +308,7 @@ def contrato_interar(request,pk):
 def contrato_distribuir(request,pk):
 
 	template_name = 'contrato_distribuir.html'
-	token = ContratToken.objects.get(pk=pk)	
+	token = ContratToken.objects.get(pk=pk)
 	contrato = Contrato.objects.get(pk=token.id_contrato.id)
 	carteira = Carteira.objects.get(pk=contrato.id_carteira)
 
@@ -291,7 +318,7 @@ def contrato_distribuir(request,pk):
 			to_address = request.POST.get("to_address")
 			dist = EnviarToken(contrato.contract_address,contrato.abi,carteira.private_key,valor,to_address)
 			tkdist = dist.enviar()
-			contrato.hash_address = Web3.toHex(tkdist)
+			contrato.hash_address = Web3.to_hex(tkdist)
 			contrato.ativo = False
 			contrato.save()
 			return redirect('con:valrecibo',contrato.id)
@@ -303,7 +330,7 @@ def contrato_distribuir(request,pk):
 		'token': token,
 		'carteira': carteira
 		#'cliente':cliente
-	}	
+	}
 	return render(request, template_name, context)
 
 @login_required
@@ -329,7 +356,7 @@ def contrato_pagamento(request):
 			return redirect('con:contrato_pagamento')
 		g = str(numcontrato)
 		if g[0] == 'b':
-			contratonum = Web3.toHex(numcontrato)
+			contratonum = Web3.to_hex(numcontrato)
 			if form.is_valid():
 				form.instance.hash_address = contratonum
 				form.instance.ativo = True
@@ -345,7 +372,7 @@ def contrato_pagamento(request):
 
 	else:
 		form = PagamentoToken(user=request.user.id)
-		
+
 	context = {
 		'form':form,
 		'cliente': cliente,
@@ -382,15 +409,15 @@ def contrato_pagtoken(request):
 				tkdist = dist.enviar()
 			except Exception as e:
 				messages.success(request,"Token não diponivel",extra_tags='text-danger')
-				return redirect('con:contrato_pagtoken')				
-			contrato.hash_address = Web3.toHex(tkdist)
+				return redirect('con:contrato_pagtoken')
+			contrato.hash_address = Web3.to_hex(tkdist)
 			contrato.ativo = False
-			contrato.save()		
+			contrato.save()
 			return redirect('con:valrecibo',contrato.id)
 
 	else:
 		form = DistribuirToken()
-		
+
 	context = {
 		'form':form,
 		'cliente': cliente,

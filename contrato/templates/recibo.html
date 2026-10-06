@@ -19,17 +19,17 @@
                     {% if recibo.contractAddress %}
                     <thead>
                         <th >Contract Address</th>
-                        <th ><a href="https://ropsten.etherscan.io/address/{{ recibo.contractAddress}}" target="blank">{{ recibo.contractAddress}}</a></th>
+                        <th ><a href="https://sepolia.etherscan.io/address/{{ recibo.contractAddress}}" target="blank">{{ recibo.contractAddress}}</a></th>
                     </thead>
                     {% else %}
                     <thead>
                         <th >Contract Address</th>
-                        <th ><a href="https://ropsten.etherscan.io/address/{{ recibo.to}}" target="blank">{{ recibo.to}}</a></th>
+                        <th ><a href="https://sepolia.etherscan.io/address/{{ recibo.to}}" target="blank">{{ recibo.to}}</a></th>
                     </thead>
                     {% endif %}
                     <thead>              
                         <th >Carteira</th>
-                        <th ><a href="https://ropsten.etherscan.io/address/{{ recibo.from}}" target="blank">{{ recibo.from}}</a></th>
+                        <th ><a href="https://sepolia.etherscan.io/address/{{ recibo.from}}" target="blank">{{ recibo.from}}</a></th>
                     </thead><thead>
                         <th >Gas Usado</th>
                         <th >{{ recibo.gasUsed}}</th>                       

@@ -49,7 +49,7 @@ class CarteiraNovaForm(forms.ModelForm):
 		public_key.widget.attrs.update({'value':conta.address}) 
 		public_key.widget.attrs.update({'size':'40'})  
 		private_key = forms.CharField(label='Chave Privada',widget=forms.TextInput(attrs={'readonly':'True'}))
-		private_key.widget.attrs.update({'value':conta.privateKey}) 
+		private_key.widget.attrs.update({'value':conta.key.hex()})
 		private_key.widget.attrs.update({'size':'50'})
 		 
 		def __init__(self, *args, **kwargs):
@@ -87,4 +87,3 @@ def carteira_gerar(request):
 		#return redirect('cli:cliente')
 	context['form'] = form
 	return render(request, template_name, context)
-

@@ -15,10 +15,9 @@ def Token(form,key):
 	qtde = form.POST.get("qtde")
 	qtde = int(qtde)
 	valor  = qtde * (10 ** dig)
-	caminho = 'contract/'+id_cliente
-	if not os.path.exists(caminho):
-		os.mkdir(caminho)
-	gra = caminho + '/' + nomearq 	
+	caminho = os.path.join(settings.BASE_DIR, 'contract', str(id_cliente))
+	os.makedirs(caminho, exist_ok=True)
+	gra = os.path.join(caminho, nomearq)
 	#wallet_address = form.POST.get("wallet_address")
 	arq = open(gra,"w")
 	linha = 'pragma solidity ' + str(solidity_version) + ';\n\n'
@@ -53,21 +52,17 @@ def Token(form,key):
 
 def Apaga(con):
 
-	caminho = 'contract/'+ str(con.id_cliente.id)
-	arquivo = con.name + '.sol'
-	apaga = caminho + arquivo
-	dir = os.listdir(caminho)
-	for file in dir:
-		if file == arquivo:
-			os.remove(caminho + '/'+ file)
+	caminho = os.path.join(settings.BASE_DIR, 'contract', str(con.id_cliente.id))
+	arquivo = os.path.join(caminho, con.name + '.sol')
+	if os.path.isfile(arquivo):
+		os.remove(arquivo)
 
 def GravaAbi(con):
 
-	caminho = 'contract/'+ str(con.id_cliente.id)
-	if not os.path.exists(caminho):
-		os.mkdir(caminho)
+	caminho = os.path.join(settings.BASE_DIR, 'contract', str(con.id_cliente.id))
+	os.makedirs(caminho, exist_ok=True)
 	nomearq = str(con.name) + "_abi.abi"
-	grava = caminho + '/' + nomearq 
+	grava = os.path.join(caminho, nomearq)
 
 	arq = open(grava,"w")
 	arq.write("abi = "+str(con.abi))

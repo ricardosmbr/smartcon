@@ -46,7 +46,7 @@ def carteira_gerar(request):
 
 @login_required
 def carteira_apagar(request,pk):
-	carteira = Carteira.objects.get(pk=pk)
+	carteira = get_object_or_404(Carteira, pk=pk)
 	carteira.delete()
 	messages.success(request,"Carteira apagada com sucesso",extra_tags='text-success')
 	return redirect('car:carteira')
@@ -54,12 +54,19 @@ def carteira_apagar(request,pk):
 @login_required
 def carteira_amostra(request,pk):
 	template_name = 'carteira_amostra.html'
-	carteira = Carteira.objects.get(pk=pk)
+	carteira = get_object_or_404(Carteira, pk=pk)
 	tk = []
 	lista = []
 	tokining = CarteiraToken.objects.filter(id_carteira=carteira.id)
 	w3 = Web3(HTTPProvider(settings.PROVEDOR))
-	bal = w3.eth.getBalance(carteira.public_key)	
+	try:
+		bal = w3.eth.get_balance(carteira.public_key)
+		carteira.saldo = saldo_token(str(bal), 18)
+	except Exception:
+		messages.error(
+			request,
+			'Não foi possível consultar a rede Sepolia agora. Exibindo o último saldo salvo.'
+		)
 	if tokining:
 		for tk in tokining:
 			if tk.id_token:
@@ -69,7 +76,7 @@ def carteira_amostra(request,pk):
 				adr = tok.id_contrato.contract_address
 			else:
 				abi = AbiToken()
-				adr = w3.toChecksumAddress(tk.contract)
+				adr = w3.to_checksum_address(tk.contract)
 
 			try:
 				erc20 = w3.eth.contract(address=adr,abi=abi)
@@ -79,8 +86,6 @@ def carteira_amostra(request,pk):
 			except:
 				print('Erro na requisição de saldo')
 				continue
-
-	carteira.saldo = saldo_token(str(bal),18)
 
 	form = MostrarCarteira(instance=carteira)
 	context = {
@@ -96,30 +101,32 @@ def token_novo(request,tk):
 	carteira = Carteira.objects.get(pk=tk)
 	form = NovoTokenForm()
 	if request.method == 'POST':
-		add = request.POST.get("token")
-		temtoken = CarteiraToken.objects.filter()
-		abi = AbiToken()
-		w3 = Web3(HTTPProvider(settings.PROVEDOR))		
-		car = carteira.public_key
-		try:
-			address = w3.toChecksumAddress(add)
-			if address:
-				erc20 = w3.eth.contract(address=address,abi=abi)
-				saldo = erc20.functions.balanceOf(car).call()
+		form = NovoTokenForm(request.POST)
+		if form.is_valid():
+			address = form.cleaned_data['token']
+			abi = AbiToken()
+			w3 = Web3(HTTPProvider(settings.PROVEDOR))
+			try:
+				erc20 = w3.eth.contract(address=address, abi=abi)
+				saldo = erc20.functions.balanceOf(carteira.public_key).call()
 				simbolo = erc20.functions.symbol().call()
 				nome = erc20.functions.name().call()
 				digitos = erc20.functions.decimals().call()
-				token = CarteiraToken()
-				token.id_carteira_id = carteira.id
-				token.contract = address
-				token.saldo = saldo
-				token.simbolo = simbolo
-				token.digitos = digitos
-				token.token = nome
-				token.save()
-		except:
-			messages.success(request,"Numero de Contrato não aceito",extra_tags='text-danger')
-		return redirect('car:carteira_amostra', carteira.id)
+			except Exception:
+				form.add_error(
+					'token',
+					'Não foi possível consultar esse contrato na Sepolia. Confira o endereço e se o contrato ERC-20 está publicado nessa rede.'
+				)
+			else:
+				CarteiraToken.objects.create(
+					id_carteira=carteira,
+					contract=address,
+					saldo=saldo,
+					simbolo=simbolo,
+					digitos=digitos,
+					token=nome,
+				)
+				return redirect('car:carteira_amostra', carteira.id)
 		
 	context = {
 		'form':form
@@ -141,7 +148,7 @@ def consultar(request):
 		pesquisa = request.POST.get("pescart")
 		w3 = Web3(HTTPProvider(settings.PROVEDOR))
 		try:
-			bal = w3.eth.getBalance(pesquisa)
+			bal = w3.eth.get_balance(pesquisa)
 		except Exception as e:
 			messages.success(request,e,extra_tags='text-danger')
 			return redirect('car:consultar')

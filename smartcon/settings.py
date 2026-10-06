@@ -26,7 +26,7 @@ SECRET_KEY = config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = ['*','smarconbr.herokuapp.com']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '[::1]', '0.0.0.0']
 
 
 # Application definition
@@ -48,6 +48,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -80,10 +81,12 @@ WSGI_APPLICATION = 'smartcon.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
 
-from dj_database_url import parse as dburl
+import dj_database_url
 
 default_dburl = 'sqlite:///' + os.path.join(BASE_DIR, 'db.sqlite3')
-DATABASES = { 'default': config('DATABASE_URL', default=default_dburl, cast=dburl), }
+DATABASES = {
+    'default': dj_database_url.config(default=default_dburl),
+}
 
 #DATABASES = {
 #    'default': {
@@ -132,9 +135,9 @@ USE_TZ = True
 
 USE_I18N = True
 
-USE_L10N = True
-
 USE_TZ = True
+
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
@@ -154,12 +157,12 @@ AUTH_USER_MODEL =  'usuario.Usuario'
 #configuração de email
 
 DEFAULT_FROM_EMAIL = 'Nome <ricardo@servipec.com.br>'
-EMAIL_USE_LTS = True
-EMAIL_HOST = 'sh1.spolucloud.com'
-EMAIL_HOST_USER = 'ricardo@servipec.com.br'
-EMAIL_HOST_PASSWORD = 'ricardo2402'
-EMAIL_PORT = 587
+EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
+EMAIL_HOST = config('EMAIL_HOST', default='')
+EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
+EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
 
 #configuração do provedor Blockchain
-#PROVEDOR = 'https://mainnet.infura.io/v3/8b513449d98a49f6a0564206842b672f'
-PROVEDOR = 'https://ropsten.infura.io/v3/5b15a8a0ea6f4ba28356608cbac65c35'
+PROVEDOR = config('WEB3_PROVIDER_URL')
+WEB3_CHAIN_ID = config('WEB3_CHAIN_ID', cast=int)

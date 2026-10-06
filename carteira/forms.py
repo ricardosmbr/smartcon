@@ -1,4 +1,5 @@
 from django import forms
+from django.core.exceptions import ValidationError
 from .models import Carteira, CarteiraToken
 from cliente.models import Cliente
 from eth_account import Account
@@ -25,7 +26,7 @@ class CarteiraNovaForm(forms.ModelForm):
 	name = forms.CharField(label='Nome',widget=forms.TextInput(attrs={'size':'20'}))	
 	public_key = forms.CharField(label='Chave Pública',widget=forms.TextInput(attrs={'value':conta.address}))
 	public_key.widget.attrs.update({'size':'42'}) 
-	key = Web3.toHex(conta.privateKey)
+	key = Web3.to_hex(conta.key)
 	private_key = forms.CharField(label='Chave Privada',widget=forms.TextInput(attrs={'value':key,'type':'password'}))
 	private_key.widget.attrs.update({'size':'56','action':'hide'}) 
 
@@ -44,7 +45,26 @@ class CarteiraNovaForm(forms.ModelForm):
 
 class NovoTokenForm(forms.ModelForm):
 
-	token = forms.CharField(label='Token',widget=forms.TextInput(attrs={'size':'50','placeholder':'Digite o numero do Contrato'}))	
+	token = forms.CharField(
+		label='Endereço do contrato',
+		max_length=42,
+		widget=forms.TextInput(attrs={
+			'size': '50',
+			'placeholder': '0x seguido de 40 caracteres hexadecimais',
+		})
+	)
+
+	def clean_token(self):
+		address = self.cleaned_data['token'].strip()
+		if address[:2].lower() == '0x':
+			address = '0x' + address[2:]
+		else:
+			address = '0x' + address
+		if not Web3.is_address(address):
+			raise ValidationError(
+				'Informe um endereço Ethereum válido: 0x seguido de 40 caracteres hexadecimais.'
+			)
+		return Web3.to_checksum_address(address)
 
 	class Meta:
 		model = CarteiraToken
