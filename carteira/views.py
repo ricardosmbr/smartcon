@@ -16,15 +16,13 @@ from sistema.utils import saldo_token
 def carteira_mostrar(request):
 	template_name = 'carteira_mostrar.html'
 	cliente = Cliente.objects.filter(id_usuario = request.user.pk)
-	carteira  = []
-	for cli in cliente:
-		carteira = list(chain(carteira , Carteira .objects.all().filter(id_cliente = cli.id)))
+	carteira = Carteira.objects.filter(id_cliente__in=cliente).select_related('id_cliente').order_by('id_cliente__name', 'name')
 
 	context = {}
 	form = MostrarCarteira()
 	if request.method == 'POST':
-		pesquisa = request.POST.get("pescli")
-		carteira = Carteira.objects.all().filter(name__icontains=pesquisa)
+		pesquisa = request.POST.get("pescli", "").strip()
+		carteira = carteira.filter(name__icontains=pesquisa)
 	context['carteiras'] = carteira
 	return render(request, template_name, context)
 

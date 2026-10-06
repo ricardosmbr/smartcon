@@ -1,9 +1,5 @@
-{% extends "painel.html" %}
-{% block breadcrumb %}
-{{ block.super }}
-<li><a href="#">Editar Conta</a></li>
-{% endblock %}
-{% block dash_content  %}
+{% extends "base.html" %}
+{% block content %}
 	<div class="painel-editar-texto">
 		<h2 >Exclusão de Conta</h2>
 	</div>
@@ -31,7 +27,7 @@
 			  			Apagar Conta
 			  		</button>
 			  	</a>
-                <a href="{% url 'sis:painel' %}">
+                <a href="{% url 'usuario:conta' %}">
                     <button type="button"  class="btn btn-lg btn-danger">
                         Cancelar
                     </button>

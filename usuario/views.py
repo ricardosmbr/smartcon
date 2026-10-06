@@ -10,6 +10,10 @@ from .decorators import user_permition_required
 User = get_user_model()
 
 @login_required
+def conta(request):
+	return render(request, 'minha_conta.html')
+
+@login_required
 def editar(request):
 	template_name = 'editar.html'
 	cliente = Cliente.objects.filter(id_usuario = request.user.pk)

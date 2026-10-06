@@ -1,4 +1,4 @@
-{% extends "cliente.html" %}
+{% extends "carteira_base.html" %}
 
 {% block dash_content %}
 <div class="inner">
@@ -10,32 +10,28 @@
         <button method="POST" class="btn btn-primary"> 
         Pesquizar</button>
     </form>
-        <div class="well">       
+        <div class="well">
+            {% regroup carteiras by id_cliente as carteiras_por_cliente %}
+            {% for grupo in carteiras_por_cliente %}
+            <h3>{{ grupo.grouper.name }}</h3>
             <table class="table">
                 <thead class="thead-light">
-                  <th >Nome</th>
-                  <th >Cliente</th>
-                  <th ></th>
-                  <th ></th>
+                    <tr><th>Carteira</th><th>Ações</th></tr>
                 </thead>
-                 {% for con in carteiras %}
-                <thead>
-                  <th><a href="{% url 'car:carteira_amostra' con.id %}">{{ con.name }}</a></th>
-                  <th><input style="border:0;" type="" class="id_con" value="{{ con.id_cliente.name }}"></th>
-                  <th>
-                </th>
-                <th><a onclick = "if (! confirm('Excluir Carteira ?')) { return false; }"class="confirmation" href="{% url 'car:carteira_apagar' con.id %}">
-                <i class="fa fa-times-circle"></i>
-                Excluir 
-                </a>
-                </th>
-                </thead>
-                {% empty %} 
-                <thead>            
-                <th><p>Nenhuma carteira encontrada</p></th>
-                {% endfor %} 
-                </thead>
-            </table>              
-       </div>
+                <tbody>
+                    {% for con in grupo.list %}
+                    <tr>
+                        <td><a href="{% url 'car:carteira_amostra' con.id %}">{{ con.name }}</a></td>
+                        <td><a onclick="if (!confirm('Excluir Carteira?')) { return false; }" class="confirmation" href="{% url 'car:carteira_apagar' con.id %}">
+                            <i class="fa fa-times-circle"></i> Excluir
+                        </a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% empty %}
+            <p>Nenhuma carteira encontrada.</p>
+            {% endfor %}
+        </div>
 </div>         
 {% endblock %}

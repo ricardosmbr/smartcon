@@ -82,11 +82,9 @@ class EnviarToken(Contra):
     self.signed = acct.sign_transaction(tran)
 
   def enviar(self):
-    try:
-      self.address = self.w3.eth.send_raw_transaction(self.signed.raw_transaction)
-      return self.address
-    except Exception as e:
-      return e
+    # Returning an exception makes it look like a transaction hash to callers.
+    self.address = self.w3.eth.send_raw_transaction(self.signed.raw_transaction)
+    return self.address
 
 class TransferirEther(Contra):
 

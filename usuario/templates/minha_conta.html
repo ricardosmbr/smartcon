@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+    <div class="account-wall col">
+        <h2 class="text-center">Minha Conta</h2>
+        <p class="text-center">Bem-vindo, {{ user }}.</p>
+        <p class="text-center">Último IP registrado: {{ user.ip_last|default:"Não registrado" }}</p>
+        <ul class="list-unstyled text-center">
+            <li><a href="{% url 'usuario:editar' %}"><i class="fa fa-cog"></i> Editar Conta</a></li>
+            <li><a href="{% url 'usuario:editar_senha' %}"><i class="fa fa-lock"></i> Alterar Senha</a></li>
+            <li><a href="{% url 'usuario:usuario_apagar' user.pk %}"><i class="fa fa-times-circle"></i> Excluir Conta</a></li>
+        </ul>
+        <p class="text-center"><a href="{% url 'sis:painel' %}">Voltar ao Painel</a></p>
+    </div>
+</div>
+{% endblock %}

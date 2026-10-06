@@ -1,9 +1,5 @@
-{% extends "painel.html" %}
-{% block breadcrumb %}
-{{ block.super }}
-<li><a href="#">Editar Conta</a></li>
-{% endblock %}
-{% block dash_content %}
+{% extends "base.html" %}
+{% block content %}
 <div class="container" >
     <div class="account-wall col" >
 		<h2 class="text-center">Editando Conta</h2>
@@ -37,7 +33,7 @@
 			  		<button type="submit" class="btn btn-lg btn-secondary">
 			  			Salvar Modificações
 			  		</button>
-	                    <a href="{% url 'sis:painel' %}">
+                    <a href="{% url 'usuario:conta' %}">
 	                        <button type="button"  class="btn btn-lg btn-danger">
 	                            Cancelar
 	                        </button>

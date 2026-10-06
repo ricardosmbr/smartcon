@@ -316,12 +316,20 @@ def contrato_distribuir(request,pk):
 		if not contrato.contract_address is None:
 			valor = request.POST.get("valor")
 			to_address = request.POST.get("to_address")
-			dist = EnviarToken(contrato.contract_address,contrato.abi,carteira.private_key,valor,to_address)
-			tkdist = dist.enviar()
-			contrato.hash_address = Web3.to_hex(tkdist)
-			contrato.ativo = False
-			contrato.save()
-			return redirect('con:valrecibo',contrato.id)
+			try:
+				dist = EnviarToken(contrato.contract_address,contrato.abi,carteira.private_key,valor,to_address)
+				tkdist = dist.enviar()
+				contrato.hash_address = Web3.to_hex(tkdist)
+			except Exception as erro:
+				texto_erro = str(erro).lower()
+				if 'insufficient funds' in texto_erro or 'insufficient balance' in texto_erro:
+					messages.error(request, "Saldo insuficiente na carteira para enviar a transação e pagar o gas.")
+				else:
+					messages.error(request, "Não foi possível enviar a transação à rede. Verifique os dados e tente novamente.")
+			else:
+				contrato.ativo = False
+				contrato.save()
+				return redirect('con:valrecibo',contrato.id)
 
 	form = DistribuirToken()
 	context = {
@@ -407,10 +415,10 @@ def contrato_pagtoken(request):
 			try:
 				dist = EnviarToken(contrato.contract_address,contrato.abi,carteira.private_key,valor,to_address)
 				tkdist = dist.enviar()
+				contrato.hash_address = Web3.to_hex(tkdist)
 			except Exception as e:
-				messages.success(request,"Token não diponivel",extra_tags='text-danger')
+				messages.error(request,"Não foi possível enviar o token. Verifique o saldo, os dados e a rede da carteira.")
 				return redirect('con:contrato_pagtoken')
-			contrato.hash_address = Web3.to_hex(tkdist)
 			contrato.ativo = False
 			contrato.save()
 			return redirect('con:valrecibo',contrato.id)

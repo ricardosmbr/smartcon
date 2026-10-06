@@ -1,0 +1,16 @@
+{% extends "cliente.html" %}
+
+{% block menu_options %}
+<ul class="breadcrumb redondo">Carteiras</ul>
+<ul>
+    <li><a href="{% url 'car:carteira' %}">
+        <i class="fa fa-wallet"></i> Listar Carteiras
+    </a></li>
+    <li><a href="{% url 'car:carteira_gerar' %}">
+        <i class="fa fa-plus-circle"></i> Gerar Carteira
+    </a></li>
+    <li><a href="{% url 'car:consultar' %}">
+        <i class="fa fa-search"></i> Consultar Carteira
+    </a></li>
+</ul>
+{% endblock %}
