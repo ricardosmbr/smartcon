@@ -410,3 +410,126 @@ body {
 .media-body img{
   padding: 15px;
 }
+
+/* Navegação lateral responsiva */
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+.sidebar {
+  position: fixed;
+  z-index: 1050;
+  inset: 0 auto 0 0;
+  width: 248px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  color: #fff;
+  background: #172b4d;
+  box-shadow: 2px 0 12px rgba(0, 0, 0, .18);
+  transition: width .22s ease, transform .22s ease;
+}
+.sidebar-brand {
+  height: 72px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px 10px 70px;
+  color: #fff;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.sidebar-brand:hover, .sidebar-nav a:hover { color: #fff; text-decoration: none; background: rgba(255,255,255,.12); }
+.sidebar-brand img { width: 38px; height: 38px; object-fit: contain; }
+.sidebar-nav { padding: 12px 10px; }
+.sidebar-nav a, .sidebar-user {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-height: 48px;
+  margin: 4px 0;
+  padding: 10px 14px;
+  border-radius: 5px;
+  color: #e8eef7;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.sidebar-nav a i, .sidebar-user i { width: 22px; text-align: center; font-size: 18px; }
+.sidebar-user { color: #b9c7dc; font-size: 13px; }
+.sidebar-nav > .sidebar-user:first-child { margin-left: 0 !important; }
+.sidebar-toggle {
+  position: fixed;
+  z-index: 1060;
+  top: 15px;
+  left: 14px;
+  width: 42px;
+  height: 42px;
+  border: 0;
+  border-radius: 5px;
+  color: #fff;
+  background: #245b9e;
+  cursor: pointer;
+}
+.sidebar-toggle:hover, .sidebar-toggle:focus { background: #174579; }
+.app-content { display: flex; flex: 1 0 auto; flex-direction: column; min-width: 0; min-height: 100vh; margin-left: 248px; transition: margin-left .22s ease; }
+.mainbody { flex: 1 0 auto; min-width: 0; min-height: 0; padding: 86px 20px 20px; }
+.footer { min-width: 0; padding: 16px; background: rgba(233,236,239,.96); }
+.footerline { width: auto; max-width: 1050px; }
+body.sidebar-collapsed .sidebar { width: 68px; }
+body.sidebar-collapsed .sidebar-brand { justify-content: center; padding-right: 0; padding-left: 0; }
+body.sidebar-collapsed .sidebar-brand img { display: none; }
+body.sidebar-collapsed .sidebar-brand span, body.sidebar-collapsed .sidebar-nav a span, body.sidebar-collapsed .sidebar-user span { display: none; }
+body.sidebar-collapsed .sidebar-nav { padding-right: 8px; padding-left: 8px; }
+body.sidebar-collapsed .sidebar-nav a, body.sidebar-collapsed .sidebar-user { justify-content: center; gap: 0; padding-right: 8px; padding-left: 8px; }
+body.sidebar-collapsed .sidebar-nav a i, body.sidebar-collapsed .sidebar-user i { width: auto; font-size: 20px; }
+body.sidebar-collapsed .app-content { margin-left: 68px; }
+.sidebar-backdrop { display: none; }
+@media (max-width: 767px) {
+  .sidebar { width: 248px; transform: translateX(-100%); }
+  body.sidebar-open .sidebar { transform: translateX(0); }
+  .app-content, body.sidebar-collapsed .app-content { margin-left: 0; }
+  body.sidebar-collapsed .sidebar { width: 248px; }
+  body.sidebar-collapsed .sidebar-brand { justify-content: flex-start; padding-right: 16px; padding-left: 70px; }
+  body.sidebar-collapsed .sidebar-brand img { display: block; }
+  body.sidebar-collapsed .sidebar-brand span, body.sidebar-collapsed .sidebar-nav a span, body.sidebar-collapsed .sidebar-user span { display: inline; }
+  body.sidebar-collapsed .sidebar-nav a, body.sidebar-collapsed .sidebar-user { justify-content: flex-start; gap: 16px; padding-right: 14px; padding-left: 14px; }
+  .sidebar-backdrop { position: fixed; z-index: 1040; inset: 0; background: rgba(0,0,0,.45); }
+  body.sidebar-open .sidebar-backdrop { display: block; }
+  .mainbody { padding: 76px 12px 16px; }
+  .footerline { line-height: 1.6; }
+}
+
+/* Ajustes comuns para formulários, imagens, tabelas e conteúdo longo. */
+*, *::before, *::after { box-sizing: border-box; }
+img, video, iframe { max-width: 100%; }
+input, select, textarea, button { max-width: 100%; }
+textarea, input[type="text"], input[type="email"], input[type="password"], input[type="number"], input[type="url"] { overflow-wrap: anywhere; }
+table { max-width: 100%; }
+.table { display: block; width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.resset, .token, .loginb, .control-cadastro, .painel-editar, .painel-editar-texto, .login { max-width: 100%; }
+.resset, .token, .loginb, .control-cadastro { width: 100%; }
+.painel-editar { width: min(100%, 420px); }
+.painel-editar-texto { padding-left: min(12vw, 150px); }
+.geral_lin { height: auto; min-height: 40px; }
+.chainum, .chaindois, .chaintres { width: min(100%, 400px); height: auto; aspect-ratio: 1; margin-right: auto; margin-left: auto; }
+.sidebar-nav form { margin: 4px 0; }
+.sidebar-logout { display: flex; align-items: center; gap: 16px; width: 100%; min-height: 48px; padding: 10px 14px; border: 0; border-radius: 5px; color: #e8eef7; background: transparent; text-align: left; white-space: nowrap; cursor: pointer; }
+.sidebar-logout:hover { background: rgba(255,255,255,.12); }
+.sidebar-logout i { width: 22px; text-align: center; font-size: 18px; }
+body.sidebar-collapsed .sidebar-logout { justify-content: center; gap: 0; padding-right: 8px; padding-left: 8px; }
+body.sidebar-collapsed .sidebar-logout span { display: none; }
+body.sidebar-collapsed .sidebar-logout i { width: auto; font-size: 20px; }
+@media (max-width: 767px) {
+  .mr-3, .mr-4 { float: none; display: block; width: auto; max-width: min(100%, 250px); height: auto; margin: 0 auto 1rem; }
+  .geral_label, .geral_field, .geral_label_log, .geral_field_log, .car_label, .car_field, .con_label, .con_field { float: none; width: 100%; padding: 0; text-align: left; }
+  .geral_field, .geral_field_log, .car_field, .con_field { margin-bottom: 12px; }
+  .painel-editar-texto { padding-left: 0; }
+  .token { padding-left: 0; }
+  .chain { font-size: clamp(22px, 7vw, 40px); }
+  .obs, .toptittle { position: static; height: auto; margin: 0 0 12px; }
+  .centro { position: static; }
+  .footerline { overflow-wrap: anywhere; }
+}

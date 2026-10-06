@@ -4,7 +4,7 @@ from contrato import views
 app_name = 'con'
 
 urlpatterns = [
-	path('contrato/',views.contrato ,name='contrato'),
+	path('painel/',views.contrato ,name='painel'),
 	path('contrato-listar/',views.contrato_listar ,name='contrato_listar'),
 	path('contrato-pesquisa/',views.contrato_pesquisa ,name='pescon'),
 	path('contrato-apagar/<int:pk>',views.contrato_apaga ,name='delcon'),

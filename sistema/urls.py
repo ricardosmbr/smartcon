@@ -8,6 +8,6 @@ urlpatterns = [
 	path('entrar/',LoginView.as_view(template_name='login.html'), name='login'),
 	path('sair/', LogoutView.as_view(next_page='home'), name='logout'),
 	path('registro/',views.register ,name='registrar'),
-	path('painel/',views.painel ,name='painel'),
+	path('contratos/',views.painel ,name='contratos'),
 	path('ip/',views.ip_cliente ,name='ip_cliente'),
 ]

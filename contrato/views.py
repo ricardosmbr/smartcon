@@ -124,9 +124,8 @@ def contrato_puclicar(request,pk):
 		path = os.path.join(settings.BASE_DIR, 'contract', str(contrato.id_cliente.id), contrato.name + '.sol')
 		fab = Fabrica(path,carteira.private_key)
 		numcontrato = fab.enviar()
-		print(numcontrato)
+		# print(numcontrato)
 		if isinstance(numcontrato, (bytes, bytearray)):
-			print()
 			contratonum = Web3.to_hex(numcontrato)
 			form = PublicarContrato(request.POST or None, instance=contrato)
 			if form.is_valid():
@@ -316,20 +315,12 @@ def contrato_distribuir(request,pk):
 		if not contrato.contract_address is None:
 			valor = request.POST.get("valor")
 			to_address = request.POST.get("to_address")
-			try:
-				dist = EnviarToken(contrato.contract_address,contrato.abi,carteira.private_key,valor,to_address)
-				tkdist = dist.enviar()
-				contrato.hash_address = Web3.to_hex(tkdist)
-			except Exception as erro:
-				texto_erro = str(erro).lower()
-				if 'insufficient funds' in texto_erro or 'insufficient balance' in texto_erro:
-					messages.error(request, "Saldo insuficiente na carteira para enviar a transação e pagar o gas.")
-				else:
-					messages.error(request, "Não foi possível enviar a transação à rede. Verifique os dados e tente novamente.")
-			else:
-				contrato.ativo = False
-				contrato.save()
-				return redirect('con:valrecibo',contrato.id)
+			dist = EnviarToken(contrato.contract_address,contrato.abi,carteira.private_key,valor,to_address)
+			tkdist = dist.enviar()
+			contrato.hash_address = Web3.to_hex(tkdist)
+			contrato.ativo = False
+			contrato.save()
+			return redirect('con:valrecibo',contrato.id)
 
 	form = DistribuirToken()
 	context = {
@@ -415,10 +406,10 @@ def contrato_pagtoken(request):
 			try:
 				dist = EnviarToken(contrato.contract_address,contrato.abi,carteira.private_key,valor,to_address)
 				tkdist = dist.enviar()
-				contrato.hash_address = Web3.to_hex(tkdist)
 			except Exception as e:
-				messages.error(request,"Não foi possível enviar o token. Verifique o saldo, os dados e a rede da carteira.")
+				messages.success(request,"Token não diponivel",extra_tags='text-danger')
 				return redirect('con:contrato_pagtoken')
+			contrato.hash_address = Web3.to_hex(tkdist)
 			contrato.ativo = False
 			contrato.save()
 			return redirect('con:valrecibo',contrato.id)

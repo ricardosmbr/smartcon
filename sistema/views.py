@@ -46,7 +46,7 @@ def ip_cliente(request):
 	user.ip_last = user.ip_actual
 	user.ip_actual = ip
 	user.save()
-	return redirect('sis:painel') 
+	return redirect('con:painel') 
 
 
 @login_required
