@@ -5,15 +5,16 @@ from solcx import compile_source
 from eth_account import Account
 import string
 
+
 class Contra:
 
   w3 = Web3(HTTPProvider(settings.PROVEDOR))
-
   def compile_source_file(self,file_path):
     with open(file_path, 'r') as f:
       source = f.read()
       ret = compile_source(source)
     return ret
+
 
 class Fabrica(Contra):
 
@@ -54,10 +55,10 @@ class Fabrica(Contra):
         return self.tx_receipt
       time.sleep(2)
 
+
 class EnviarToken(Contra):
 
   def __init__(self,address,abi,private,val,to_add):
-
     address = Web3.to_checksum_address(address)
     erc20 = self.w3.eth.contract(address=address,abi=abi)
 
@@ -70,21 +71,25 @@ class EnviarToken(Contra):
     except Exception as e:
       print(e)
     acct = Account.from_key(private)
-    tran = erc20.functions.transfer(
-      to_add,
-      int(val)
-      ).build_transaction({
-        'from': acct.address,
-        'nonce': self.w3.eth.get_transaction_count(acct.address),
-        'gas': 2728712,
-        'gasPrice': self.w3.to_wei('41', 'gwei')
-    })
+    transfer = erc20.functions.transfer(to_add, int(val))
+    gas_price = self.w3.eth.gas_price
+    tx_params = {
+      'from': acct.address,
+      'nonce': self.w3.eth.get_transaction_count(acct.address),
+      'gasPrice': gas_price,
+    }
+    # Estimate this call's actual cost. A fixed 2.7M gas limit made the RPC
+    # require far more ETH than a typical ERC-20 transfer consumes.
+    gas_estimate = transfer.estimate_gas(tx_params)
+    tx_params['gas'] = max(gas_estimate, int(gas_estimate * 1.2))
+    tran = transfer.build_transaction(tx_params)
     self.signed = acct.sign_transaction(tran)
 
   def enviar(self):
     # Returning an exception makes it look like a transaction hash to callers.
     self.address = self.w3.eth.send_raw_transaction(self.signed.raw_transaction)
     return self.address
+
 
 class TransferirEther(Contra):
 

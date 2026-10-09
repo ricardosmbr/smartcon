@@ -15,6 +15,11 @@ from eth_account import Account
 from django.conf import settings
 import json, time, os
 
+
+def _saldo_gas_insuficiente(error):
+	texto = str(error).lower()
+	return 'insufficient funds' in texto or 'insufficient balance' in texto
+
 @login_required
 def contrato(request):
 	cliente = Cliente.objects.filter(id_usuario = request.user.pk)
@@ -23,6 +28,7 @@ def contrato(request):
 		'cliente':cliente,
 	}
 	return render(request, template_name,context)
+
 
 @login_required
 def contrato_listar(request):
@@ -48,6 +54,7 @@ def contrato_pesquisa(request):
 	template_name = 'contrato.html'
 	contrato = Contrato.objects.all().filter(name__icontains=pesquisa)
 
+
 @login_required
 @permition_conrequired
 def contrato_apaga(request,pk):
@@ -59,6 +66,7 @@ def contrato_apaga(request,pk):
 
 	messages.success(request,"Contrato apagado com sucesso",extra_tags='text-success')
 	return redirect('con:contrato_listar')
+
 
 @login_required
 @permition_conrequired
@@ -81,6 +89,7 @@ def contrato_editar(request,pk):
 		'form': form
 	}
 	return render(request, template_name, context)
+
 
 @login_required
 def contrato_mostrar(request,pk):
@@ -106,6 +115,7 @@ def contrato_mostrar(request,pk):
 	}
 
 	return render(request, template_name, context)
+
 
 @login_required
 @permition_conrequired
@@ -174,6 +184,7 @@ def contrato_puclicar(request,pk):
 	}
 	return render(request, template_name, context)
 
+
 @login_required
 @permition_conrequired
 def recibo(request,pk):
@@ -185,6 +196,7 @@ def recibo(request,pk):
 	while True:
 		try:
 			recibo = w3.eth.get_transaction_receipt(contrato.hash_address)
+			print(recibo)
 		except TransactionNotFound:
 			messages.error(
 				request,
@@ -230,6 +242,7 @@ def recibo(request,pk):
 	}
 	return render(request, template_name, context)
 
+
 @login_required
 @permition_conrequired
 def valrecibo(request,pk):
@@ -244,6 +257,7 @@ def valrecibo(request,pk):
 		'cliente': cliente
 	}
 	return render(request, template_name, context)
+
 
 @login_required
 def contrato_token(request):
@@ -279,6 +293,7 @@ def contrato_token(request):
 	}
 	return render(request, template_name, context)
 
+
 @login_required
 @permition_conrequired
 def contrato_interar(request,pk):
@@ -302,6 +317,7 @@ def contrato_interar(request,pk):
 	}
 	return render(request, template_name, context)
 
+
 @login_required
 @permition_tokenrequired
 def contrato_distribuir(request,pk):
@@ -315,12 +331,18 @@ def contrato_distribuir(request,pk):
 		if not contrato.contract_address is None:
 			valor = request.POST.get("valor")
 			to_address = request.POST.get("to_address")
-			dist = EnviarToken(contrato.contract_address,contrato.abi,carteira.private_key,valor,to_address)
-			tkdist = dist.enviar()
-			contrato.hash_address = Web3.to_hex(tkdist)
-			contrato.ativo = False
-			contrato.save()
-			return redirect('con:valrecibo',contrato.id)
+			try:
+				dist = EnviarToken(contrato.contract_address,contrato.abi,carteira.private_key,valor,to_address)
+				tkdist = dist.enviar()
+				contrato.hash_address = Web3.to_hex(tkdist)
+				contrato.ativo = True
+				contrato.save()
+				return redirect('con:valrecibo',contrato.id)
+			except Exception as error:
+				if _saldo_gas_insuficiente(error):
+					messages.error(request, "Saldo insuficiente na carteira para pagar o gas da transferência. Adicione a moeda nativa da rede e tente novamente.")
+				else:
+					messages.error(request, "Não foi possível enviar a transferência. Verifique o valor e a carteira de destino e tente novamente.")
 
 	form = DistribuirToken()
 	context = {
@@ -379,6 +401,7 @@ def contrato_pagamento(request):
 	}
 	return render(request, template_name, context)
 
+
 @login_required
 def contrato_pagtoken(request):
 	template_name = 'contrato_pagamento_token.html'
@@ -407,7 +430,10 @@ def contrato_pagtoken(request):
 				dist = EnviarToken(contrato.contract_address,contrato.abi,carteira.private_key,valor,to_address)
 				tkdist = dist.enviar()
 			except Exception as e:
-				messages.success(request,"Token não diponivel",extra_tags='text-danger')
+				if _saldo_gas_insuficiente(e):
+					messages.error(request,"Saldo insuficiente na carteira para pagar o gas da transferência. Adicione a moeda nativa da rede e tente novamente.")
+				else:
+					messages.error(request,"Não foi possível enviar a transferência. Verifique o valor e a carteira de destino e tente novamente.")
 				return redirect('con:contrato_pagtoken')
 			contrato.hash_address = Web3.to_hex(tkdist)
 			contrato.ativo = False
@@ -424,6 +450,7 @@ def contrato_pagtoken(request):
 		'token':token
 	}
 	return render(request, template_name, context)
+
 
 def ajuda(request):
 	template_name = 'ajuda.html'

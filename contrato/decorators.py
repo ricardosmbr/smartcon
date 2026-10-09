@@ -23,7 +23,7 @@ def permition_conrequired(view_func):
 
 		if not has_permition:
 			messages.error(request,message)
-			return redirect('con:contrato')
+			return redirect('con:painel')
 		request.contrato = contrato
 		return view_func(request, *args,**kwargs)
 	return _wrapper
@@ -49,7 +49,7 @@ def permition_tokenrequired(view_func):
 
 		if not has_permition:
 			messages.error(request,message)
-			return redirect('con:contrato')
+			return redirect('con:painel')
 		request.token = cont
 		return view_func(request, *args,**kwargs)
 	return _wrapper
