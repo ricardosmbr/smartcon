@@ -313,23 +313,22 @@ def contrato_token(request):
 @login_required
 @permition_conrequired
 def contrato_interar(request,pk):
-	cliente = Cliente.objects.filter(id_usuario = request.user.pk)
-	contrato = Contrato.objects.get(pk=pk)
+	contrato = request.contrato
 	tipo = contrato.tipo
-	if tipo == 1:
-		link = ContratToken.objects.get(id_contrato=contrato.id)
-		link = link.id
-	else:
-		link = 0
-	action = ContratActions.objects.all().filter(id_contrato_id = contrato.id)
+	token = ContratToken.objects.filter(id_contrato=contrato).first() if tipo == 1 else None
+	link = token.pk if token else None
+	action = ContratActions.objects.filter(id_contrato=contrato).order_by('-create_at')
 
 	template_name = 'contrato_interar.html'
 	context = {
 		'contrato': contrato,
 		'action': action,
-		'cliente':cliente,
+		'token': token,
 		'tipo':tipo,
-		'link': link
+		'link': link,
+		'total_actions': action.count(),
+		'successful_actions': action.filter(status=True).count(),
+		'pending_actions': action.filter(Q(status=False) | Q(status__isnull=True)).count(),
 	}
 	return render(request, template_name, context)
 
@@ -337,35 +336,49 @@ def contrato_interar(request,pk):
 @login_required
 @permition_tokenrequired
 def contrato_distribuir(request,pk):
-
 	template_name = 'contrato_distribuir.html'
-	token = ContratToken.objects.get(pk=pk)
-	contrato = Contrato.objects.get(pk=token.id_contrato.id)
-	carteira = Carteira.objects.get(pk=contrato.id_carteira)
+	token = request.token
+	contrato = request.contrato
+	carteiras = Carteira.objects.all()
+	if not request.user.is_staff:
+		carteiras = carteiras.filter(id_cliente__id_usuario=request.user)
+	carteira = get_object_or_404(carteiras, pk=contrato.id_carteira)
+	valor = ''
+	form = DistribuirToken(request.POST or None)
 
 	if request.method == 'POST':
-		if not contrato.contract_address is None:
-			valor = request.POST.get("valor")
-			to_address = request.POST.get("to_address")
-			try:
-				dist = EnviarToken(contrato.contract_address,contrato.abi,carteira.private_key,valor,to_address)
-				tkdist = dist.enviar()
-				contrato.hash_address = Web3.to_hex(tkdist)
-				contrato.ativo = True
-				contrato.save()
-				return redirect('con:valrecibo',contrato.id)
-			except Exception as error:
-				if _saldo_gas_insuficiente(error):
-					messages.error(request, "Saldo insuficiente na carteira para pagar o gas da transferência. Adicione a moeda nativa da rede e tente novamente.")
+		valor = request.POST.get('valor', '').strip()
+		if not contrato.contract_address:
+			messages.error(request, 'Este contrato ainda não foi publicado.')
+		elif form.is_valid():
+			if not Web3.is_address(form.cleaned_data['to_address']):
+				form.add_error('to_address', 'Informe um endereço de carteira válido.')
+			else:
+				try:
+					quantidade = int(valor)
+					if quantidade <= 0:
+						raise ValueError
+				except (TypeError, ValueError):
+					form.add_error(None, 'A quantidade deve ser um número inteiro maior que zero.')
 				else:
-					messages.error(request, "Não foi possível enviar a transferência. Verifique o valor e a carteira de destino e tente novamente.")
-
-	form = DistribuirToken()
+					try:
+						dist = EnviarToken(contrato.contract_address,contrato.abi,carteira.private_key,quantidade,Web3.to_checksum_address(form.cleaned_data['to_address']))
+						tkdist = dist.enviar()
+						contrato.hash_address = Web3.to_hex(tkdist)
+						contrato.ativo = True
+						contrato.save()
+						return redirect('con:valrecibo',contrato.id)
+					except Exception as error:
+						if _saldo_gas_insuficiente(error):
+							messages.error(request, 'Saldo insuficiente na carteira para pagar o gas da transferência. Adicione a moeda nativa da rede e tente novamente.')
+						else:
+							messages.error(request, 'Não foi possível enviar a transferência. Verifique o valor e a carteira de destino e tente novamente.')
 	context = {
 		'form':form,
 		'contrato': contrato,
 		'token': token,
-		'carteira': carteira
+		'carteira': carteira,
+		'valor': valor
 		#'cliente':cliente
 	}
 	return render(request, template_name, context)

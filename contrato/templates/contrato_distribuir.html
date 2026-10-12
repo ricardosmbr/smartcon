@@ -1,53 +1,64 @@
 {% extends "contrato.html" %}
-{% block dash_content  %}
-<div class="container">
-    <div class="account-wall col">
-    	<div class="text-center">
-    	Transferencia de Token: <h2 >{{ token.token}}</h2>
-    	</div>
-        <form class="form-signin text-center" method="POST" >
-            {% csrf_token %}
-            <fieldset class="resset" >
-            
-                <div class="erro_login">
-                    {{ form.non_field_errors }}
-                </div>
-                    {% for field in form %}
-                <dir class="geral_lin">
-                    <div class="car_label" >
-                        {{ field.label_tag }}
-                    </div>
-                    <div class="car_field">
-                            {{ field }}
-                    </div>
-                </dir>
-                <div class="erro_login">
-                        {{ field.errors }}
-                </div>
-                    {% endfor %}
-                <dir class="geral_lin">
-                    <div class="car_label" >
-                        Valor
-                    </div>
-                    <div class="car_field">
-                           <input type="text" name="valor" requered>
-                    </div>
-                </dir>
-                    <br />
-            </fieldset>
-                <div class="text-center login">
-                <a href="{% url 'con:intercon'  contrato.id %}">
-                    <button type="button" class="btn btn-lg btn-secondary">
-                            Fechar
-                    </button>
-                </a>
-                    <button class="btn btn-lg btn-secondary">
-                            Enviar
-                    </button>
-                </div>
-            
+{% block dash_content %}
+<section class="transfer-page">
+  <a class="contracts-back" href="{% url 'con:intercon' contrato.pk %}">← Voltar às interações</a>
 
-        </form> 
+  <header class="transfer-heading">
+    <span class="contracts-operation-icon contracts-purple" aria-hidden="true">⇄</span>
+    <div>
+      <p class="contracts-eyebrow">Distribuição de token</p>
+      <h1>Transferir {{ token.token }}</h1>
+      <p class="contracts-subtitle">Informe a carteira de destino e a quantidade que deseja enviar.</p>
     </div>
-</div>
+  </header>
+
+  <div class="transfer-layout">
+    <section class="transfer-card" aria-labelledby="transfer-form-title">
+      <div class="contracts-section-heading">
+        <div><p class="contracts-eyebrow">Nova transferência</p><h2 id="transfer-form-title">Dados do envio</h2></div>
+      </div>
+
+      {% if messages %}
+        <div class="transfer-messages" role="status">
+          {% for message in messages %}<p class="{% if message.tags %}{{ message.tags }}{% endif %}">{{ message }}</p>{% endfor %}
+        </div>
+      {% endif %}
+
+      {% if not contrato.contract_address %}
+        <div class="transfer-notice">Este contrato ainda não foi publicado. Publique o contrato antes de distribuir tokens.</div>
+      {% else %}
+        <form method="post" class="contracts-form transfer-form" novalidate>
+          {% csrf_token %}
+          {% if form.non_field_errors %}<div class="transfer-errors">{{ form.non_field_errors }}</div>{% endif %}
+          <label class="contracts-field transfer-field" for="{{ form.to_address.id_for_label }}">
+            <span>Carteira de destino</span>
+            {{ form.to_address }}
+            {% if form.to_address.errors %}<small>{{ form.to_address.errors|join:', ' }}</small>{% else %}<small class="field-help">Cole o endereço público da carteira que receberá os tokens.</small>{% endif %}
+          </label>
+          <label class="contracts-field transfer-field" for="id_valor">
+            <span>Quantidade (unidades mínimas)</span>
+            <input id="id_valor" type="number" name="valor" min="1" step="1" value="{{ valor|default:'' }}" required>
+            <small class="field-help">Informe um número inteiro de unidades do token.</small>
+          </label>
+          <div class="contracts-form-actions">
+            <a class="contracts-form-cancel" href="{% url 'con:intercon' contrato.pk %}">Cancelar</a>
+            <button class="contracts-primary" type="submit">Enviar transferência <span aria-hidden="true">→</span></button>
+          </div>
+        </form>
+      {% endif %}
+    </section>
+
+    <aside class="transfer-summary">
+      <p class="contracts-eyebrow">Resumo</p>
+      <h2>{{ token.token }}</h2>
+      <dl>
+        <div><dt>Símbolo</dt><dd>{{ token.simbolo|default:"—" }}</dd></div>
+        <div><dt>Contrato</dt><dd>{{ contrato.name|default:"Contrato" }}</dd></div>
+        <div><dt>Cliente</dt><dd>{{ contrato.id_cliente.name|default:"—" }}</dd></div>
+        <div><dt>Carteira de origem</dt><dd>{{ carteira.public_key|default:"Carteira vinculada" }}</dd></div>
+      </dl>
+      <p class="transfer-security">Confira o endereço e a quantidade antes de enviar. Transações confirmadas na rede podem não ser revertidas.</p>
+    </aside>
+  </div>
+</section>
 {% endblock %}

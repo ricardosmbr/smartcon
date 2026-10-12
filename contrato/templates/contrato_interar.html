@@ -1,53 +1,38 @@
 {% extends "contrato.html" %}
-{% block dash_content  %}
-<div class="container">
-    <div class="account-wall col">
-        <h2 class="text-center">Interação(s) com contrato {{ contrato.name }}</h2>
-        <form class="text-center" method="POST">
-            {% csrf_token %}
-            <fieldset class="carteira" >
-                <table class="table">
-                    <thead class="table-primary">
-                      <th >Cliente: </th><th><font color="green">{{ contrato.id_cliente.name }}</font></th>
-                      <th>{% if tipo == 1%}<a href="{% url 'con:disttoken' link %}"><button type="button" class="btn btn-secondary">
-                            Transferir Token
-                      </button></a>{% endif %}</th>
-                      <th></th>
-                      <th></th>
-                    </thead>
-                {% if action %}
-                    <thead class="thead-light">
-                        <th >Bloco</th>
-                        <th >Identificação da Transação</th>
-                        <th >Data</th>
-                        <th >Custo</th>
-                        <th >tatus</th>
-                    </thead>
-                {% for act in action %}
-                <thead>
-                  <th>{{ act.blocknumber }}</th>
-                  <th><a href="{% url 'con:moscon' act.id %}">{{ act.transactionHash}}</a></th>
-                  <th>{{ act.create_at}}</th>
-                  <th>{{ act.gasUsed}}</th>
-                  <th><center><div class="{% if act.status %}led-green{% else %}led-red{% endif %}"></div></center></th>
-                 </thead>
-                {% endfor %}
-                {% else %}                          
-                <th><p>Nenhuma ação encontrada</p></th>
-                {% endif %} 
-                    
-                </table>
-
-                <div class="text-center login">
-                  <a href="{% url 'con:contrato_listar' %}">
-                  <button type="button" class="btn btn-lg btn-secondary">
-                            Fechar
-                  </button>
-                  </a>
-                </div>
-            </fieldset>
-        </form>  
+{% block dash_content %}
+<section class="interaction-page">
+  <header class="interaction-heading">
+    <div><p class="contracts-eyebrow">{% if tipo == 1 %}Token ERC-20{% elif tipo == 4 %}Pagamento{% else %}Contrato inteligente{% endif %}</p><h1>{{ contrato.name|default:"Contrato sem nome" }}</h1><p class="contracts-subtitle">Cliente: {{ contrato.id_cliente.name }}</p></div>
+    <div class="interaction-heading-actions">
+      {% if link %}<a class="contracts-primary" href="{% url 'con:disttoken' link %}">Transferir token</a>{% endif %}
+      <a class="interaction-secondary" href="{% url 'con:contrato_listar' %}">Voltar à lista</a>
     </div>
-    <br>
-</div>
+  </header>
+
+  <section class="contracts-stats contracts-stats-compact" aria-label="Resumo das interações">
+    <article class="contracts-stat"><span class="contracts-stat-icon contracts-purple" aria-hidden="true">↗</span><div><p>Total de transações</p><strong>{{ total_actions }}</strong></div></article>
+    <article class="contracts-stat"><span class="contracts-stat-icon contracts-green" aria-hidden="true">✓</span><div><p>Confirmadas</p><strong>{{ successful_actions }}</strong></div></article>
+    <article class="contracts-stat"><span class="contracts-stat-icon contracts-amber" aria-hidden="true">◷</span><div><p>Falhas ou pendentes</p><strong>{{ pending_actions }}</strong></div></article>
+  </section>
+
+  <section class="contracts-panel interaction-panel">
+    <div class="interaction-panel-heading"><div><p class="contracts-eyebrow">Blockchain</p><h2>Histórico de transações</h2></div><span class="interaction-contract-status {% if contrato.ativo %}is-confirmed{% else %}is-waiting{% endif %}"><i></i>{% if contrato.ativo %}Contrato publicado{% elif contrato.ativo == False %}Aguardando confirmação{% else %}Ainda não publicado{% endif %}</span></div>
+    {% if contrato.contract_address %}<div class="interaction-address"><span>Endereço do contrato</span><a href="https://sepolia.etherscan.io/address/{{ contrato.contract_address }}" target="_blank" rel="noopener noreferrer">{{ contrato.contract_address }}</a></div>{% endif %}
+    <div class="contracts-table-wrap"><table class="contracts-table interaction-table">
+      <thead><tr><th>Transação</th><th>Bloco</th><th>Data</th><th>Gas usado</th><th>Status</th><th></th></tr></thead>
+      <tbody>
+        {% for act in action %}
+        <tr>
+          <td data-label="Transação"><a class="interaction-hash" href="https://sepolia.etherscan.io/tx/{{ act.transactionHash }}" target="_blank" rel="noopener noreferrer">{{ act.transactionHash|default:"Hash indisponível" }}</a></td>
+          <td data-label="Bloco">{{ act.blocknumber|default:"—" }}</td>
+          <td data-label="Data">{{ act.create_at|date:"d/m/Y H:i" }}</td>
+          <td data-label="Gas usado">{{ act.gasUsed|default:"—" }}</td>
+          <td data-label="Status"><span class="interaction-status {% if act.status %}is-confirmed{% elif act.status == False %}is-failed{% else %}is-waiting{% endif %}"><i></i>{% if act.status %}Confirmada{% elif act.status == False %}Falhou{% else %}Pendente{% endif %}</span></td>
+          <td class="interaction-detail"><a href="{% url 'con:moscon' act.pk %}">Detalhes</a></td>
+        </tr>
+        {% empty %}<tr><td colspan="6"><div class="contracts-empty"><span>↗</span><strong>Nenhuma transação registrada</strong><p>As interações deste contrato aparecerão aqui quando forem registradas na rede.</p></div></td></tr>{% endfor %}
+      </tbody>
+    </table></div>
+  </section>
+</section>
 {% endblock %}
