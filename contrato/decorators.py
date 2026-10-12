@@ -1,55 +1,30 @@
-from django.shortcuts import redirect, get_object_or_404
-from django.contrib import messages
-from cliente.models import Cliente
-from .models import Contrato,ContratToken
+from functools import wraps
+
+from django.shortcuts import get_object_or_404
+
+from .models import Contrato, ContratToken
+
 
 def permition_conrequired(view_func):
-	def _wrapper(request, *args,**kwargs):
-		pk = kwargs['pk']
-		contrato = get_object_or_404(Contrato ,pk=pk)
-		pkcon = contrato.id_cliente.id
-		cliente = get_object_or_404(Cliente,pk=contrato.id_cliente.id)
-		has_permition = request.user.is_staff
-		if not has_permition:
-			try:
-				contrato = Contrato.objects.get(
-					id_cliente=pkcon,
-					pk=pk
-				)
-			except cliente.DoesNotExist:
-				messages.success(request,'Desculpe, mas voce não tem permissão',extra_tags='text-denger')
-			else:
-				has_permition = True
-
-		if not has_permition:
-			messages.error(request,message)
-			return redirect('con:painel')
+	@wraps(view_func)
+	def _wrapper(request, *args, **kwargs):
+		contracts = Contrato.objects.select_related('id_cliente')
+		if not request.user.is_staff:
+			contracts = contracts.filter(id_cliente__id_usuario=request.user)
+		contrato = get_object_or_404(contracts, pk=kwargs['pk'])
 		request.contrato = contrato
-		return view_func(request, *args,**kwargs)
+		return view_func(request, *args, **kwargs)
 	return _wrapper
 
-def permition_tokenrequired(view_func):
-	def _wrapper(request, *args,**kwargs):
-		pk = kwargs['pk']
-		cont = get_object_or_404(ContratToken,pk=pk)
-		contrato = get_object_or_404(Contrato ,pk=cont.id_contrato.id)
-		pkcon = contrato.id_cliente.id
-		cliente = get_object_or_404(Cliente,pk=contrato.id_cliente.id)
-		has_permition = request.user.is_staff
-		if not has_permition:
-			try:
-				contrato = Contrato.objects.get(
-					id_cliente=pkcon,
-					pk=pk
-				)
-			except cliente.DoesNotExist:
-				messages.success(request,'Desculpe, mas voce não tem permissão',extra_tags='text-denger')
-			else:
-				has_permition = True
 
-		if not has_permition:
-			messages.error(request,message)
-			return redirect('con:painel')
-		request.token = cont
-		return view_func(request, *args,**kwargs)
+def permition_tokenrequired(view_func):
+	@wraps(view_func)
+	def _wrapper(request, *args, **kwargs):
+		tokens = ContratToken.objects.select_related('id_contrato__id_cliente')
+		if not request.user.is_staff:
+			tokens = tokens.filter(id_contrato__id_cliente__id_usuario=request.user)
+		token = get_object_or_404(tokens, pk=kwargs['pk'])
+		request.token = token
+		request.contrato = token.id_contrato
+		return view_func(request, *args, **kwargs)
 	return _wrapper

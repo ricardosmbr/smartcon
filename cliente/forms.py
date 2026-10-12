@@ -1,7 +1,6 @@
 from django import forms
 from sistema.mail import send_mail_template
 from .models  import Cliente
-from usuario.models import Usuario
 from carteira.models import Carteira
 from eth_account import Account
 from web3 import Web3
@@ -12,29 +11,30 @@ class ClienteNovoForm(forms.ModelForm):
 
 	name = forms.CharField(label='Nome',widget=forms.TextInput(attrs={'placeholder':'Digite seu Nome'}))
 	name.widget.attrs.update({'size':'25'}) 
-	cpf = forms.CharField(label='CPF',widget=forms.TextInput(attrs={'placeholder':'Digite seu CPF'}))
-	tel = forms.CharField(label='Telefone',widget=forms.TextInput(attrs={'placeholder':'Digite seu Telefone','class':'tel'}))  
-	id_usuario = forms.ModelChoiceField(
-		queryset=Usuario.objects.all(),
-		widget=forms.HiddenInput(),
-		label='',
-	)
+	cpf = forms.CharField(label='CPF', required=False, widget=forms.TextInput(attrs={'placeholder':'000.000.000-00'}))
+	tel = forms.CharField(label='Telefone', required=False, widget=forms.TextInput(attrs={'placeholder':'(00) 00000-0000','class':'tel'}))
 
 	class Meta:
 		model = Cliente
-		fields = ['name','cpf','tel','id_usuario']
+		fields = ['name','cpf','tel']
+
+	def clean_cpf(self):
+		return self.cleaned_data.get('cpf') or None
 
 class EditarCliente(forms.ModelForm):
 
 	name = forms.CharField(label='Nome')
 	name.widget.attrs.update({'size':'25'}) 
-	cpf = forms.CharField(label='CPF',widget=forms.TextInput(attrs={'class':'cpf'}))
-	tel = forms.CharField(label='Telefone',widget=forms.TextInput(attrs={'class':'tel'})) 
+	cpf = forms.CharField(label='CPF', required=False, widget=forms.TextInput(attrs={'class':'cpf'}))
+	tel = forms.CharField(label='Telefone', required=False, widget=forms.TextInput(attrs={'class':'tel'}))
 
 
 	class Meta:
 		model = Cliente
 		fields = ['name','cpf','tel']
+
+	def clean_cpf(self):
+		return self.cleaned_data.get('cpf') or None
 
 class MostrarCliente(forms.ModelForm):
 

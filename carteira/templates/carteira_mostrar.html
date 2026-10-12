@@ -1,37 +1,29 @@
 {% extends "carteira_base.html" %}
-
 {% block dash_content %}
-<div class="inner">
-   <h2>Minhas Carteiras</h2>
-    <form class="" method="POST">
-        {% csrf_token %}
-        <input name="pescli" type=""></th>
-      
-        <button method="POST" class="btn btn-primary"> 
-        Pesquizar</button>
+  <section class="wallet-stats" aria-label="Resumo de carteiras">
+    <article class="wallet-stat"><span class="wallet-stat-icon wallet-purple" aria-hidden="true">◈</span><div><p>Total de carteiras</p><strong>{{ total_carteiras }}</strong></div></article>
+    <article class="wallet-stat"><span class="wallet-stat-icon wallet-blue" aria-hidden="true">♙</span><div><p>Clientes com carteira</p><strong>{{ total_clientes }}</strong></div></article>
+    <article class="wallet-stat"><span class="wallet-stat-icon wallet-green" aria-hidden="true">◇</span><div><p>Tokens acompanhados</p><strong>{{ total_tokens }}</strong></div></article>
+  </section>
+  <section class="wallet-panel">
+    <form class="wallet-toolbar" method="get" action="{% url 'car:carteira' %}">
+      <label class="wallet-search"><span aria-hidden="true">⌕</span><input type="search" name="q" value="{{ pesquisa }}" placeholder="Buscar carteira ou cliente" aria-label="Buscar carteiras"></label>
+      <button type="submit" class="wallet-search-button">Buscar</button>
+      {% if pesquisa %}<a href="{% url 'car:carteira' %}" class="wallet-clear">Limpar</a>{% endif %}
     </form>
-        <div class="well">
-            {% regroup carteiras by id_cliente as carteiras_por_cliente %}
-            {% for grupo in carteiras_por_cliente %}
-            <h3>{{ grupo.grouper.name }}</h3>
-            <table class="table">
-                <thead class="thead-light">
-                    <tr><th>Carteira</th><th>Ações</th></tr>
-                </thead>
-                <tbody>
-                    {% for con in grupo.list %}
-                    <tr>
-                        <td><a href="{% url 'car:carteira_amostra' con.id %}">{{ con.name }}</a></td>
-                        <td><a onclick="if (!confirm('Excluir Carteira?')) { return false; }" class="confirmation" href="{% url 'car:carteira_apagar' con.id %}">
-                            <i class="fa fa-times-circle"></i> Excluir
-                        </a></td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-            {% empty %}
-            <p>Nenhuma carteira encontrada.</p>
-            {% endfor %}
-        </div>
-</div>         
+    <div class="wallet-table-wrap"><table class="wallet-table">
+      <thead><tr><th>Carteira</th><th>Cliente</th><th>Endereço público</th><th class="wallet-actions-heading">Ações</th></tr></thead>
+      <tbody>
+        {% for wallet in carteiras %}
+        <tr>
+          <td><a class="wallet-name" href="{% url 'car:carteira_amostra' wallet.pk %}"><span class="wallet-avatar">◈</span><span><strong>{{ wallet.name|default:"Carteira sem nome" }}</strong><small>Criada em {{ wallet.create_at|date:"d/m/Y" }}</small></span></a></td>
+          <td data-label="Cliente">{{ wallet.id_cliente.name }}</td>
+          <td data-label="Endereço público"><span class="wallet-address">{{ wallet.public_key|slice:":8" }}…{{ wallet.public_key|slice:"-6:" }}</span></td>
+          <td class="wallet-actions" data-label="Ações"><a class="wallet-action" href="{% url 'car:carteira_amostra' wallet.pk %}">Detalhes</a><form method="post" action="{% url 'car:carteira_apagar' wallet.pk %}" onsubmit="return confirm('Excluir a carteira {{ wallet.name|default:'sem nome'|escapejs }}?');">{% csrf_token %}<button class="wallet-action wallet-delete" type="submit">Excluir</button></form></td>
+        </tr>
+        {% empty %}<tr><td colspan="4"><div class="wallet-empty"><span>◈</span><strong>Nenhuma carteira encontrada</strong><p>{% if pesquisa %}Tente outro nome de carteira ou cliente.{% else %}Gere uma carteira e associe-a a um dos seus clientes.{% endif %}</p>{% if not pesquisa %}<a href="{% url 'car:carteira_gerar' %}">Gerar carteira</a>{% endif %}</div></td></tr>{% endfor %}
+      </tbody>
+    </table></div>
+    <footer class="wallet-footer">Exibindo {{ carteiras|length }}{% if pesquisa %} resultado(s){% else %} de {{ total_carteiras }} carteiras{% endif %}</footer>
+  </section>
 {% endblock %}

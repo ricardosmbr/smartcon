@@ -1,58 +1,43 @@
-{% extends "contrato.html" %}
+{% extends "base.html" %}
+{% load static %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'contrato/contracts.css' %}?v=1">{% endblock %}
+{% block content %}
+<main class="contracts-page">
+  <header class="contracts-heading">
+    <div><p class="contracts-eyebrow">Gestão de contratos</p><h1>Meus contratos</h1><p class="contracts-subtitle">Pesquise, acompanhe e gerencie seus contratos inteligentes.</p></div>
+    <a class="contracts-primary" href="{% url 'con:painel' %}"><span aria-hidden="true">+</span> Novo contrato</a>
+  </header>
 
-{% block dash_content %}
-<div class="inner">
-   <h2>Meus Contratos</h2>
-    <form class="" method="POST">
-        {% csrf_token %}
-        <input name="pescli" type="">
-      
-        <button method="POST" class="btn btn-primary"> 
-        Pesquizar</button>
+  <section class="contracts-stats contracts-stats-compact" aria-label="Resumo de contratos">
+    <article class="contracts-stat"><span class="contracts-stat-icon contracts-purple" aria-hidden="true">▤</span><div><p>Total de contratos</p><strong>{{ total_contratos }}</strong></div></article>
+    <article class="contracts-stat"><span class="contracts-stat-icon contracts-green" aria-hidden="true">✓</span><div><p>Publicados</p><strong>{{ publicados }}</strong></div></article>
+    <article class="contracts-stat"><span class="contracts-stat-icon contracts-amber" aria-hidden="true">◷</span><div><p>Em preparação</p><strong>{{ pendentes }}</strong></div></article>
+  </section>
+
+  <section class="contracts-panel">
+    <form class="contracts-toolbar" method="get" action="{% url 'con:contrato_listar' %}">
+      <label class="contracts-search"><span aria-hidden="true">⌕</span><input type="search" name="q" value="{{ pesquisa }}" placeholder="Buscar contrato ou cliente" aria-label="Buscar contratos"></label>
+      <select name="status" aria-label="Filtrar por status"><option value="" {% if not status %}selected{% endif %}>Todos os status</option><option value="publicado" {% if status == 'publicado' %}selected{% endif %}>Publicados</option><option value="pendente" {% if status == 'pendente' %}selected{% endif %}>Em preparação</option></select>
+      <button class="contracts-search-button" type="submit">Buscar</button>
+      {% if pesquisa or status %}<a class="contracts-clear" href="{% url 'con:contrato_listar' %}">Limpar</a>{% endif %}
     </form>
-        <div class="well">       
-            <table class="table">
-                <thead class="thead-light">
-                  <th ></th>
-                  <th >Nome</th>
-                  <th >Cliente</th>
-                  <th ></th>
-                  <th ></th>
-                  <th ></th>
-                  <th ></th>
-                </thead>
-                 {% for con in contrato %}
-                <thead>
-                  <th>
-                    <div class="{% if con.ativo %}led-green{% else %}led-red{% endif %}"></div></th>
-                  <th >   
-                    <a href="{% url 'con:intercon' con.id %}">{{ con.name }}</a></th>
-                  <th><input style="border:0;" type="" class="id_con" value="{{ con.id_cliente.name }}"></th>
-                  <th ><a href="{% url 'con:valrecibo' con.id %}">
-                    <i class="fa fa-dice-six"></i>
-                        Recibo
-                    </a></th>
-                  <th ><a href="{% url 'con:pubcon' con.id %}">
-                    <i class="fa fa-book"></i>
-                        Publicar
-                    </a></th>
-                  <th><a href="{% url 'con:edicon' con.id %}">
-                    <i class="fa fa-cog"></i>
-                        Editar
-                    </a>
-                </th>
-                <th><a onclick = "if (! confirm('Excluir Contrato ?')) { return false; }"class="confirmation" href="{% url 'con:delcon' con.id %}">
-                    <i class="fa fa-times-circle"></i>
-                        Excluir
-                    </a>
-                </th>
-                </thead>
-                {% empty %} 
-                <thead>            
-                <th><p>Nenhum contrato encontrado</p></th>
-                {% endfor %} 
-                </thead>
-            </table>              
-       </div>
-</div>         
+    <div class="contracts-table-wrap"><table class="contracts-table">
+      <thead><tr><th>Contrato</th><th>Cliente</th><th>Status</th><th>Criado em</th><th class="contracts-actions-heading">Ações</th></tr></thead>
+      <tbody>
+        {% for con in contrato %}
+        <tr>
+          <td><a class="contracts-name" href="{% url 'con:intercon' con.pk %}"><span class="contracts-avatar">{{ con.name|default:"C"|slice:":1"|upper }}</span><span><strong>{{ con.name|default:"Contrato sem nome" }}</strong><small>{% if con.tipo == 1 %}Token{% elif con.tipo == 4 %}Pagamento{% else %}Contrato inteligente{% endif %}</small></span></a></td>
+          <td data-label="Cliente">{{ con.id_cliente.name }}</td>
+          <td data-label="Status"><span class="contracts-status-label {% if con.ativo %}is-published{% else %}is-pending{% endif %}"><i></i>{% if con.ativo %}Publicado{% elif con.ativo == False %}Confirmação pendente{% else %}Rascunho{% endif %}</span></td>
+          <td data-label="Criado em">{{ con.create_at|date:"d/m/Y" }}</td>
+          <td class="contracts-actions" data-label="Ações"><a class="contracts-action contracts-interact" href="{% url 'con:intercon' con.pk %}">Abrir</a><a class="contracts-action" href="{% url 'con:valrecibo' con.pk %}">Recibo</a>{% if not con.ativo %}<a class="contracts-action contracts-publish" href="{% url 'con:pubcon' con.pk %}">Publicar</a>{% endif %}{% if not con.ativo %}<a class="contracts-action" href="{% url 'con:edicon' con.pk %}">Editar</a>{% endif %}<form method="post" action="{% url 'con:delcon' con.pk %}" onsubmit="return confirm('Excluir o contrato {{ con.name|default:'este contrato'|escapejs }}?');">{% csrf_token %}<button class="contracts-action contracts-delete" type="submit">Excluir</button></form></td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5"><div class="contracts-empty"><span>⌕</span><strong>Nenhum contrato encontrado</strong><p>{% if pesquisa or status %}Ajuste os filtros ou tente outro termo.{% else %}Crie seu primeiro contrato para começar.{% endif %}</p>{% if not pesquisa and not status %}<a href="{% url 'con:painel' %}">Criar contrato</a>{% endif %}</div></td></tr>
+        {% endfor %}
+      </tbody>
+    </table></div>
+    <footer class="contracts-footer">Exibindo {{ contrato|length }}{% if pesquisa or status %} resultado(s){% else %} de {{ total_contratos }} contratos{% endif %}</footer>
+  </section>
+</main>
 {% endblock %}

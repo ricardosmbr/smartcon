@@ -1,16 +1,17 @@
-{% extends "cliente.html" %}
-
-{% block menu_options %}
-<ul class="breadcrumb redondo">Carteiras</ul>
-<ul>
-    <li><a href="{% url 'car:carteira' %}">
-        <i class="fa fa-wallet"></i> Listar Carteiras
-    </a></li>
-    <li><a href="{% url 'car:carteira_gerar' %}">
-        <i class="fa fa-plus-circle"></i> Gerar Carteira
-    </a></li>
-    <li><a href="{% url 'car:consultar' %}">
-        <i class="fa fa-search"></i> Consultar Carteira
-    </a></li>
-</ul>
+{% extends "base.html" %}
+{% load static %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'carteira/wallets.css' %}?v=1">{% endblock %}
+{% block content %}
+<main class="wallet-page">
+  <header class="wallet-heading">
+    <div><p class="wallet-eyebrow">Gestão financeira</p><h1>Carteiras</h1><p class="wallet-subtitle">Gerencie carteiras Ethereum e acompanhe os tokens dos seus clientes.</p></div>
+    <a class="wallet-primary" href="{% url 'car:carteira_gerar' %}"><span aria-hidden="true">+</span> Gerar carteira</a>
+  </header>
+  <nav class="wallet-nav" aria-label="Navegação de carteiras">
+    <a href="{% url 'car:carteira' %}" class="{% if request.resolver_match.url_name == 'carteira' %}is-active{% endif %}">Minhas carteiras</a>
+    <a href="{% url 'car:carteira_gerar' %}" class="{% if request.resolver_match.url_name == 'carteira_gerar' or request.resolver_match.url_name == 'carteira_salvar' %}is-active{% endif %}">Gerar carteira</a>
+    <a href="{% url 'car:consultar' %}" class="{% if request.resolver_match.url_name == 'consultar' %}is-active{% endif %}">Consultar endereço</a>
+  </nav>
+  {% block dash_content %}{% endblock %}
+</main>
 {% endblock %}

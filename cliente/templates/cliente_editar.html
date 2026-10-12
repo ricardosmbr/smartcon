@@ -1,44 +1,16 @@
-{% extends "cliente.html" %}
-
-{% block dash_content  %}
-<div class="container">
-    <div class="account-wall col">
-        <h2 class="text-center">Editando os dados do Cliente</h2>
-        <form class="form-signin text-center" method="POST" >
-            {% csrf_token %}
-            <fieldset class="resset" >
-            
-                <div class="erro_login">
-                    {{ form.non_field_errors }}
-                </div>
-                    {% for field in form %}
-                <div class="geral_lin">
-                        <div class="geral_label">
-                        {{ field.label_tag }}
-                        </div>
-                        <div class="geral_field">
-                            {{ field }}
-                        </div>
-                    </div>
-                <div class="erro_login">
-                        {{ field.errors }}
-                </div>
-                    {% endfor %}
-                    <br />
-                <div class="text-center">
-                    <button onclick="Enviar()" class="btn btn-lg btn-secondary">
-                        Cadastrar
-                    </button>
-                    <a href="{% url 'cli:cliente' %}">
-                    <button type="button"  class="btn btn-lg btn-danger">
-                        Cancelar
-                    </button>
-                    </a>
-                </div>
-            
-            </fieldset>
-        </form>        
-    </div>
-    <br>
-</div>
+{% extends "base.html" %}
+{% load static %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'cliente/clients.css' %}?v=2">{% endblock %}
+{% block content %}
+<main class="clients-page clients-form-page">
+  <a class="clients-back" href="{% url 'cli:cliente' %}">← Voltar para clientes</a>
+  <section class="clients-form-card">
+    <p class="clients-eyebrow">Relacionamentos</p><h1>Editar cliente</h1><p class="clients-subtitle">Atualize as informações do cadastro.</p>
+    <form method="post" class="clients-form">{% csrf_token %}
+      {{ form.non_field_errors }}
+      {% for field in form %}<label class="clients-field"><span>{{ field.label }}</span>{{ field }}{% if field.errors %}<small class="clients-field-error">{{ field.errors|join:", " }}</small>{% endif %}</label>{% endfor %}
+      <div class="clients-form-actions"><a class="clients-cancel" href="{% url 'cli:cliente' %}">Cancelar</a><button class="clients-primary" type="submit">Salvar alterações</button></div>
+    </form>
+  </section>
+</main>
 {% endblock %}

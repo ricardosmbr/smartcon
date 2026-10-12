@@ -1,42 +1,15 @@
-{% extends "cliente.html" %}
-
-{% block dash_content  %}
-<div class="container">
-    <div class="account-wall col">
-        <h2 class="text-center">Dados do Cliente</h2>
-        <form class="form-signin text-center" method="POST">
-            {% csrf_token %}
-            {% if success %}
-                <div class="text-success">
-                    <h5> Dados alterados com sucesso</h5>
-                </div>
-            {% endif %}
-            <fieldset class="resset" >
-                <div class="erro_login">
-                    {{ form.non_field_errors }}
-                </div>
-                    {% for field in form %}
-                <div class="geral_lin">
-                    <div class="geral_label">
-                        {{ field.label_tag }}
-                    </div>
-                    <div class="geral_field ">
-                        {{ field }}
-                    </div>
-                </div>
-                <div class="erro_login">
-                        {{ field.errors }}
-                </div>
-                    {% endfor %}
-                    <br />
-                <div class="text-center login">
-                    <button  class="btn btn-lg btn-secondary">
-                        Fechar
-                    </button>
-                </div>
-            </fieldset>
-        </form>  
+{% extends "base.html" %}
+{% load static %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'cliente/clients.css' %}?v=2">{% endblock %}
+{% block content %}
+<main class="clients-page clients-form-page">
+  <a class="clients-back" href="{% url 'cli:cliente' %}">← Voltar para clientes</a>
+  <section class="clients-form-card">
+    <p class="clients-eyebrow">Relacionamentos</p><h1>Dados do cliente</h1><p class="clients-subtitle">Cadastro criado em {{ cliente.create_at|date:"d/m/Y" }}.</p>
+    <div class="clients-form">
+      {% for field in form %}<label class="clients-field"><span>{{ field.label }}</span>{{ field }}</label>{% endfor %}
+      <div class="clients-form-actions"><a class="clients-cancel" href="{% url 'cli:cliente' %}">Fechar</a><a class="clients-primary" href="{% url 'cli:cliente_editar' cliente.pk %}">Editar cliente</a></div>
     </div>
-    <br>
-</div>
+  </section>
+</main>
 {% endblock %}

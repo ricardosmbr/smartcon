@@ -11,19 +11,24 @@ from web3 import Web3, HTTPProvider
 from django.conf import settings
 from contrato.arquivo import AbiToken
 from sistema.utils import saldo_token
+from django.db.models import Q
 
 @login_required
 def carteira_mostrar(request):
 	template_name = 'carteira_mostrar.html'
 	cliente = Cliente.objects.filter(id_usuario = request.user.pk)
-	carteira = Carteira.objects.filter(id_cliente__in=cliente).select_related('id_cliente').order_by('id_cliente__name', 'name')
-
-	context = {}
-	form = MostrarCarteira()
-	if request.method == 'POST':
-		pesquisa = request.POST.get("pescli", "").strip()
-		carteira = carteira.filter(name__icontains=pesquisa)
-	context['carteiras'] = carteira
+	carteiras_base = Carteira.objects.filter(id_cliente__in=cliente).select_related('id_cliente').order_by('id_cliente__name', 'name')
+	carteira = carteiras_base
+	pesquisa = request.GET.get('q', '').strip()
+	if pesquisa:
+		carteira = carteira.filter(Q(name__icontains=pesquisa) | Q(id_cliente__name__icontains=pesquisa))
+	context = {
+		'carteiras': carteira,
+		'pesquisa': pesquisa,
+		'total_carteiras': carteiras_base.count(),
+		'total_clientes': carteiras_base.values('id_cliente_id').distinct().count(),
+		'total_tokens': CarteiraToken.objects.filter(id_carteira__id_cliente__id_usuario=request.user).count(),
+	}
 	return render(request, template_name, context)
 
 @login_required
@@ -38,13 +43,16 @@ def carteira_gerar(request):
 			return redirect('car:carteira')	
 		else:messages.success(request,"Erro ao gerar carteira",extra_tags='text-danger')
 
-	form = CarteiraNovaForm(user=request.user.id)
+	else:
+		form = CarteiraNovaForm(user=request.user.id)
 	context['form'] = form
 	return render(request, template_name, context)
 
 @login_required
 def carteira_apagar(request,pk):
-	carteira = get_object_or_404(Carteira, pk=pk)
+	if request.method != 'POST':
+		return redirect('car:carteira')
+	carteira = get_object_or_404(Carteira, pk=pk, id_cliente__id_usuario=request.user)
 	carteira.delete()
 	messages.success(request,"Carteira apagada com sucesso",extra_tags='text-success')
 	return redirect('car:carteira')
@@ -52,7 +60,7 @@ def carteira_apagar(request,pk):
 @login_required
 def carteira_amostra(request,pk):
 	template_name = 'carteira_amostra.html'
-	carteira = get_object_or_404(Carteira, pk=pk)
+	carteira = get_object_or_404(Carteira, pk=pk, id_cliente__id_usuario=request.user)
 	tk = []
 	lista = []
 	tokining = CarteiraToken.objects.filter(id_carteira=carteira.id)
@@ -60,6 +68,7 @@ def carteira_amostra(request,pk):
 	try:
 		bal = w3.eth.get_balance(carteira.public_key)
 		carteira.saldo = saldo_token(str(bal), 18)
+		carteira.save(update_fields=['saldo', 'update_at'])
 	except Exception:
 		messages.error(
 			request,
@@ -88,6 +97,7 @@ def carteira_amostra(request,pk):
 	form = MostrarCarteira(instance=carteira)
 	context = {
 		'form':form,
+		'carteira': carteira,
 		'tok':tokining,
 		'tk':carteira.id
 	}
@@ -96,7 +106,7 @@ def carteira_amostra(request,pk):
 @login_required
 def token_novo(request,tk):
 	template_name = 'token_novo.html'
-	carteira = Carteira.objects.get(pk=tk)
+	carteira = get_object_or_404(Carteira, pk=tk, id_cliente__id_usuario=request.user)
 	form = NovoTokenForm()
 	if request.method == 'POST':
 		form = NovoTokenForm(request.POST)
@@ -127,31 +137,35 @@ def token_novo(request,tk):
 				return redirect('car:carteira_amostra', carteira.id)
 		
 	context = {
-		'form':form
+		'form':form,
+		'carteira': carteira,
 	}
 	return render(request, template_name, context)
 
 @login_required
 def token_apagar(request,pk):
-	carteira = CarteiraToken.objects.get(pk=pk)
-	carteira.delete()
+	if request.method != 'POST':
+		return redirect('car:carteira')
+	token = get_object_or_404(CarteiraToken, pk=pk, id_carteira__id_cliente__id_usuario=request.user)
+	carteira_id = token.id_carteira_id
+	token.delete()
 	messages.success(request,"Token apagada com sucesso",extra_tags='text-success')
-	return redirect('car:carteira')
+	return redirect('car:carteira_amostra', carteira_id)
 
 @login_required
 def consultar(request):
 	template_name = 'carteira_consultar.html'
-	context = {}
+	context = {'bal': None, 'endereco': ''}
 	if request.method == 'POST':
-		pesquisa = request.POST.get("pescart")
+		pesquisa = request.POST.get("pescart", "").strip()
+		context['endereco'] = pesquisa
 		w3 = Web3(HTTPProvider(settings.PROVEDOR))
 		try:
 			bal = w3.eth.get_balance(pesquisa)
-		except Exception as e:
-			messages.success(request,e,extra_tags='text-danger')
-			return redirect('car:consultar')
+		except Exception:
+			messages.error(request,'Não foi possível consultar esse endereço na rede configurada.')
+			return render(request, template_name, context)
 
-		print(bal)
 		context['bal'] = saldo_token(str(bal),18)
 		return render(request, template_name, context)	
 	return render(request, template_name, context)

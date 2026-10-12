@@ -1,44 +1,11 @@
-{% extends "cliente.html" %}
-
-{% block dash_content  %}
-<div class="container">
-    <div class="account-wall col">
-        <h2 class="text-center">Editando os dados do Contrato</h2>
-        <form class="form-signin text-center" method="POST" >
-            {% csrf_token %}
-            <fieldset class="resset" >
-            
-                <div class="erro_login">
-                    {{ form.non_field_errors }}
-                </div>
-                    {% for field in form %}
-                <dir class="geral_lin">
-                    <div class="car_label" >
-                        {{ field.label_tag }}
-                    </div>
-                    <div class="car_field">
-                            {{ field }}
-                    </div>
-                </dir>
-                <div class="erro_login">
-                        {{ field.errors }}
-                </div>
-                    {% endfor %}
-                    <br />
-                <div class="text-center">
-                    <button onclick="Enviar()" class="btn btn-lg btn-secondary">
-                        Cadastrar
-                    </button>
-                    <a href="{% url 'con:painel' %}">
-                    <button type="button"  class="btn btn-lg btn-danger">
-                        Cancelar
-                    </button>
-                    </a>
-                </div>
-            
-            </fieldset>
-        </form>        
-    </div>
-    <br>
-</div>
+{% extends "contrato.html" %}
+{% block dash_content %}
+<section class="contracts-form-card">
+  <p class="contracts-eyebrow">Configuração</p><h2>Editar contrato</h2><p class="contracts-subtitle">Atualize os dados deste contrato antes da publicação.</p>
+  <form method="post" class="contracts-form">{% csrf_token %}
+    {{ form.non_field_errors }}
+    {% for field in form %}<label class="contracts-field"><span>{{ field.label }}</span>{{ field }}{% if field.errors %}<small>{{ field.errors|join:", " }}</small>{% endif %}</label>{% endfor %}
+    <div class="contracts-form-actions"><a class="contracts-form-cancel" href="{% url 'con:contrato_listar' %}">Cancelar</a><button class="contracts-primary" type="submit">Salvar alterações</button></div>
+  </form>
+</section>
 {% endblock %}

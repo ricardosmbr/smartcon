@@ -1,28 +1,11 @@
 {% extends "carteira_base.html" %}
-
 {% block dash_content %}
-<div class="inner">
-   <h2>Carteira pra conuslta</h2>
-    <form class="" method="POST">
-        {% csrf_token %}
-        <input name="pescart" size="45" type=""></th>
-      
-        <button method="POST" class="btn btn-primary">Consultar</button>
+  <section class="wallet-form-card wallet-consult-card">
+    <p class="wallet-eyebrow">Consulta pública</p><h2>Consultar saldo de endereço</h2><p class="wallet-subtitle">Consulte o saldo de ETH de um endereço na rede configurada.</p>
+    <form method="post" class="wallet-form">{% csrf_token %}
+      <label class="wallet-field"><span>Endereço público</span><input type="text" name="pescart" value="{{ endereco|default:'' }}" placeholder="0x…" autocomplete="off" required></label>
+      <div class="wallet-form-actions"><button class="wallet-primary" type="submit">Consultar saldo</button></div>
     </form>
-        <div class="well">          
-          <table class="table">
-            <thead class="thead-light"> 
-              <th ></th>
-              <th ></th>
-              <th ></th>
-              <th ></th>
-              <th ></th>
-              <th ></th>
-            </thead>
-            <thead>
-              <th >Saldo: </th><th ><input type="text" name="saldo" value="{{ bal }}" size="42" readonly="true"></th>
-            </thead>
-          </table>                     
-       </div>
-</div>         
+    {% if bal != None %}<div class="wallet-result"><span>Saldo encontrado</span><strong>{{ bal }} ETH</strong></div>{% endif %}
+  </section>
 {% endblock %}

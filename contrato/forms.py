@@ -37,25 +37,27 @@ class ContratoNovoForm(forms.ModelForm):
 class EditarContrato(forms.ModelForm):
 
 	name = forms.CharField(label='Nome')
-	wallet_address = forms.CharField(label='Carteira')
-	wallet_address.widget.attrs.update({'size':'43'}) 
-	solidity_version = forms.CharField(label='Versão Software')
+	solidity_version = forms.CharField(label='Versão do software')
 	
 	class Meta:
 		model = Contrato
-		fields = ['name','id_cliente','wallet_address','solidity_version']
+		fields = ['name','id_cliente','solidity_version']
+
+	def __init__(self, *args, **kwargs):
+		user = kwargs.pop('user', None)
+		super().__init__(*args, **kwargs)
+		if user is not None and not user.is_staff:
+			self.fields['id_cliente'].queryset = Cliente.objects.filter(id_usuario=user)
 
 class MostrarContrato(forms.ModelForm):
 
 	name = forms.CharField(label='Nome',widget=forms.TextInput(attrs={'readonly':'True'}))
-	wallet_address = forms.CharField(label='Carteira',widget=forms.TextInput(attrs={'readonly':'True'}))
-	wallet_address.widget.attrs.update({'size':'43'}) 
 	solidity_version = forms.CharField(label='Versão Software',widget=forms.TextInput(attrs={'readonly':'True'}))
 	hash_address = forms.CharField(label='Numero do contrato',widget=forms.TextInput(attrs={'readonly':'True'}))
 	hash_address.widget.attrs.update({'size':'57'}) 
 	class Meta:
 		model = Contrato
-		fields = ['name','id_cliente','wallet_address','solidity_version','hash_address']
+		fields = ['name','id_cliente','solidity_version','hash_address']
 
 class PublicarContrato(forms.ModelForm):
 

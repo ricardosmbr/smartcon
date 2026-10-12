@@ -14,8 +14,6 @@ body {
     background-color: white;
     min-height: 700px;
     min-width: 740px;
-    padding-top: 20px;
-    padding-bottom: 20px;
     opacity: 0.93;
 }
 .footer{
@@ -475,7 +473,7 @@ body {
 }
 .sidebar-toggle:hover, .sidebar-toggle:focus { background: #174579; }
 .app-content { display: flex; flex: 1 0 auto; flex-direction: column; min-width: 0; min-height: 100vh; margin-left: 248px; transition: margin-left .22s ease; }
-.mainbody { flex: 1 0 auto; min-width: 0; min-height: 0; padding: 86px 20px 20px; }
+.mainbody { flex: 1 0 auto; min-width: 0; min-height: 0; }
 .footer { min-width: 0; padding: 16px; background: rgba(233,236,239,.96); }
 .footerline { width: auto; max-width: 1050px; }
 body.sidebar-collapsed .sidebar { width: 68px; }
@@ -498,7 +496,6 @@ body.sidebar-collapsed .app-content { margin-left: 68px; }
   body.sidebar-collapsed .sidebar-nav a, body.sidebar-collapsed .sidebar-user { justify-content: flex-start; gap: 16px; padding-right: 14px; padding-left: 14px; }
   .sidebar-backdrop { position: fixed; z-index: 1040; inset: 0; background: rgba(0,0,0,.45); }
   body.sidebar-open .sidebar-backdrop { display: block; }
-  .mainbody { padding: 76px 12px 16px; }
   .footerline { line-height: 1.6; }
 }
 

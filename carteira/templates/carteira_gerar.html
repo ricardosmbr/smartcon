@@ -1,58 +1,11 @@
 {% extends "carteira_base.html" %}
-
-{% block dash_content  %}
-<div class="container">
-    <div class="account-wall col">
-        <h2 class="text-center">Carteira</h2>
-        <form class="form-signin text-center" method="POST">
-            {% csrf_token %}
-            {% if success %}
-                <div class="text-success">
-                    <h5> Dados alterados com sucesso</h5>
-                </div>
-            {% endif %}
-            <fieldset class="carteira" >
-                <div class="erro_login">
-                    {{ form.non_field_errors }}
-                </div>
-                    {% for field in form %}
-                <div class="geral_lin">
-                    <div class="car_label">
-                        {{ field.label_tag }}
-                    </div>
-                    <div class="car_field">
-                        {{ field }}
-                        {% if field.html_name   == "private_key" %}
-                            <a onclick = "mostrar()"><span id ='show'  action="hide"><i class="fa fa-eye"></i></span> </a>
-                        {% endif %}
-                    </div>
-                </div>
-                <div class="erro_login">
-                        {{ field.errors }}
-                </div>
-                    {% endfor %}
-                    {% if form.field is not empty %}
-                <br />
-                <div class="text-center login">
-                    <button  class="btn btn-lg btn-secondary">
-                        Fechar
-                    </button>
-                </div>
-                    {% else %}
-                <br />
-                <div class="text-center login">
-                    <a href="{% url 'car:carteira' %}">
-                    <button type="button"  class="btn btn-lg btn-danger">
-                        Cancela
-                    </button></a>
-                    <button  class="btn btn-lg btn-primary">
-                        Salvar
-                    </button>
-                </div>                 
-                    {% endif %}
-            </fieldset>
-        </form>  
-    </div>
-    <br>
-</div>
+{% block dash_content %}
+  <section class="wallet-form-card">
+    <p class="wallet-eyebrow">Nova carteira</p><h2>Gerar carteira Ethereum</h2><p class="wallet-subtitle">A carteira será associada ao cliente escolhido.</p>
+    <form method="post" class="wallet-form">{% csrf_token %}{{ form.non_field_errors }}
+      {% for field in form %}<label class="wallet-field"><span>{{ field.label }}</span>{{ field }}{% if field.errors %}<small>{{ field.errors|join:", " }}</small>{% endif %}</label>{% endfor %}
+      <div class="wallet-security-note"><strong>Guarde sua chave privada em segurança.</strong><span>Ela dá acesso aos fundos desta carteira e não pode ser recuperada pelo sistema.</span></div>
+      <div class="wallet-form-actions"><a class="wallet-cancel" href="{% url 'car:carteira' %}">Cancelar</a><button class="wallet-primary" type="submit">Gerar carteira</button></div>
+    </form>
+  </section>
 {% endblock %}

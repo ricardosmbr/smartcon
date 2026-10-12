@@ -13,6 +13,8 @@ from web3 import Web3, HTTPProvider
 from web3.exceptions import TransactionNotFound
 from eth_account import Account
 from django.conf import settings
+from django.utils import timezone
+from django.db.models import Q
 import json, time, os
 
 
@@ -22,43 +24,57 @@ def _saldo_gas_insuficiente(error):
 
 @login_required
 def contrato(request):
-	cliente = Cliente.objects.filter(id_usuario = request.user.pk)
+	cliente = Cliente.objects.filter(id_usuario=request.user.pk)
+	contratos = Contrato.objects.filter(id_cliente__id_usuario=request.user).select_related('id_cliente')
+	hoje = timezone.localdate()
 	template_name = 'contrato.html'
 	context = {
+		'dashboard': True,
 		'cliente':cliente,
+		'total_contratos': contratos.count(),
+		'publicados': contratos.filter(ativo=True).count(),
+		'pendentes': contratos.filter(Q(ativo=False) | Q(ativo__isnull=True)).count(),
+		'novos_este_mes': contratos.filter(create_at__year=hoje.year, create_at__month=hoje.month).count(),
+		'ultimos_contratos': contratos.order_by('-create_at')[:5],
 	}
 	return render(request, template_name,context)
 
 
 @login_required
 def contrato_listar(request):
-	cliente = Cliente.objects.filter(id_usuario = request.user.pk)
-	contrato = []
-	for cli in cliente:
-		contrato = list(chain(contrato, Contrato.objects.all().filter(id_cliente = cli.id)))
-
+	contratos_base = Contrato.objects.filter(id_cliente__id_usuario=request.user).select_related('id_cliente').order_by('-create_at')
+	contratos = contratos_base
+	pesquisa = request.GET.get('q', '').strip()
+	status = request.GET.get('status', '').strip()
+	if pesquisa:
+		contratos = contratos.filter(Q(name__icontains=pesquisa) | Q(id_cliente__name__icontains=pesquisa))
+	if status == 'publicado':
+		contratos = contratos.filter(ativo=True)
+	elif status == 'pendente':
+		contratos = contratos.filter(Q(ativo=False) | Q(ativo__isnull=True))
 	template_name = 'contrato_listar.html'
-	pesquisa =''
-	if request.method == 'POST':
-		pesquisa = request.POST.get("pescli")
-		contrato = Contrato.objects.all().filter(name__icontains=pesquisa)
 	context = {
-		'cliente':cliente,
-		'contrato': contrato
+		'contrato': contratos,
+		'pesquisa': pesquisa,
+		'status': status,
+		'total_contratos': contratos_base.count(),
+		'publicados': contratos_base.filter(ativo=True).count(),
+		'pendentes': contratos_base.filter(Q(ativo=False) | Q(ativo__isnull=True)).count(),
 	}
 	return render(request, template_name,context)
 
 
 @login_required
 def contrato_pesquisa(request):
-	template_name = 'contrato.html'
-	contrato = Contrato.objects.all().filter(name__icontains=pesquisa)
+	return redirect('con:contrato_listar')
 
 
 @login_required
 @permition_conrequired
 def contrato_apaga(request,pk):
-	contrato = Contrato.objects.get(pk=pk)
+	if request.method != 'POST':
+		return redirect('con:contrato_listar')
+	contrato = request.contrato
 	contrato_token = ContratToken.objects.filter(id_contrato_id = contrato.id)
 	Apaga(contrato)
 	contrato_token.delete()
@@ -72,19 +88,19 @@ def contrato_apaga(request,pk):
 @permition_conrequired
 def contrato_editar(request,pk):
 	template_name = 'contrato_editar.html'
-	contrato = Contrato.objects.get(pk=pk)
+	contrato = request.contrato
 	if contrato.ativo == True:
 		messages.success(request,"Este contrato não pode mais ser editado",extra_tags='text-danger')
 		return redirect('con:contrato_listar')
 
 	if request.method == 'POST':
-		form = EditarContrato(request.POST or None, instance=contrato)
+		form = EditarContrato(request.POST or None, instance=contrato, user=request.user)
 		if form.is_valid():
 			form.save()
 			messages.success(request,"Contrato salvo com sucesso",extra_tags='text-success')
-		return redirect('con:contrato_listar')
+			return redirect('con:contrato_listar')
 	else:
-		form = EditarContrato(instance=contrato)
+		form = EditarContrato(instance=contrato, user=request.user)
 	context = {
 		'form': form
 	}

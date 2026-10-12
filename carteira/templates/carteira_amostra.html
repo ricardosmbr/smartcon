@@ -1,82 +1,17 @@
 {% extends "carteira_base.html" %}
-
-{% block dash_content  %}
-<div class="container">
-    <div class="account-wall col">
-        <h2 class="text-center">Carteira</h2>
-        <form class="form-signin text-center" method="POST">
-            {% csrf_token %}
-            {% if success %}
-                <div class="text-success">
-                    <h5> Dados alterados com sucesso</h5>
-                </div>
-            {% endif %}
-            <fieldset class="carteira">
-              <div class="erro_login">
-                    {{ form.non_field_errors }}
-              </div>
-                    {% for field in form %}
-                    <div class="geral_lin">
-                        <div class="car_label">
-                            {{ field.label_tag }}
-                        </div>
-                        <div class="car_field">
-                            {{ field }}
-                            {% if field.html_name   == "private_key" %}
-                                <a onclick = "mostrar()"><span id ='show'  action="hide"><i class="fa fa-eye"></i></span> </a>
-                            {% endif %}
-                        </div>
-                    </div>
-                <div class="erro_login">
-                        {{ field.errors }}
-                </div>
-                    {% endfor %}<br>
-                <div class="col breadcrumb redondo">
-                    <div class="col ">
-                        <h2>Tokens</h2>
-                    </div>
-                    <div class="col ">
-                        <a href="{% url 'car:token_novo' tk %}"><button type="button" class="btn btn-secondary">Adicionar token</button></a>
-                    </div>
-                </div> 
-                <table class="table">
-                    {% if tok %}
-                    <thead class="thead-light">
-                        <th >Nome</th>
-                        <th >simbolo</th>
-                        <th >Saldo</th>
-                        <th ></th>
-                    </thead>
-                    {% endif %}
-                    
-                    {% for token in tok %}
-                    <thead>
-                        <th >{{ token.token }}</th>
-                        <th >{{ token.simbolo }}</th>
-
-                        <th >{{ token.saldo }}</th>
-                        <th ><a onclick = "if (! confirm('Excluir Token ?')) { return false; }"class="confirmation" href="{% url 'car:token_apagar' token.pk %}">
-                        <i class="fa fa-times-circle"></i>
-                        Excluir
-                        </a></th>
-                    </thead>
-                    {% empty %}
-                    Nunhum Token encontrado
-                    {% endfor %}
-                    
-                </table>
-                    <br />
-                    <div class="text-center login">
-                        <a href="{% url 'car:carteira' %}">
-                        <button type="button"  class="btn btn-lg btn-secondary">
-                            Fechar
-                        </button></a>
-                    </div>                 
-
-            </fieldset>
-        </form>  
-
+{% block dash_content %}
+  <a class="wallet-back" href="{% url 'car:carteira' %}">← Voltar às carteiras</a>
+  <section class="wallet-detail-card">
+    <div class="wallet-detail-heading"><div><p class="wallet-eyebrow">{{ carteira.id_cliente.name }}</p><h2>{{ carteira.name|default:"Carteira" }}</h2></div><span class="wallet-balance"><small>Saldo em ETH</small><strong>{{ carteira.saldo|default:"0" }}</strong></span></div>
+    <div class="wallet-detail-fields">
+      {% for field in form %}<label class="wallet-field"><span>{{ field.label }}</span><span class="wallet-readonly">{{ field }}{% if field.html_name == "private_key" %}<button type="button" class="wallet-reveal" onclick="mostrar()" aria-label="Mostrar ou ocultar chave privada">◉</button>{% endif %}</span></label>{% endfor %}
     </div>
-    <br>
-</div>
+    <section class="wallet-token-section">
+      <div class="wallet-token-heading"><div><p class="wallet-eyebrow">Ativos digitais</p><h3>Tokens desta carteira</h3></div><a class="wallet-secondary" href="{% url 'car:token_novo' tk %}">+ Adicionar token</a></div>
+      <div class="wallet-table-wrap"><table class="wallet-table wallet-token-table"><thead><tr><th>Token</th><th>Símbolo</th><th>Saldo</th><th class="wallet-actions-heading">Ações</th></tr></thead><tbody>
+        {% for token in tok %}<tr><td data-label="Token"><strong>{{ token.token|default:"Token" }}</strong></td><td data-label="Símbolo">{{ token.simbolo|default:"—" }}</td><td data-label="Saldo">{{ token.saldo|default:"0" }}</td><td class="wallet-actions" data-label="Ações"><form method="post" action="{% url 'car:token_apagar' token.pk %}" onsubmit="return confirm('Remover este token da carteira?');">{% csrf_token %}<button class="wallet-action wallet-delete" type="submit">Remover</button></form></td></tr>
+        {% empty %}<tr><td colspan="4"><div class="wallet-empty wallet-empty-compact"><strong>Nenhum token adicionado</strong><p>Adicione um contrato ERC-20 para acompanhar o saldo.</p></div></td></tr>{% endfor %}
+      </tbody></table></div>
+    </section>
+  </section>
 {% endblock %}

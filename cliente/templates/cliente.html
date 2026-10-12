@@ -1,76 +1,46 @@
-{% extends "base.html" %} 
+{% extends "base.html" %}
+{% load static %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'cliente/clients.css' %}?v=2">{% endblock %}
 {% block content %}
+<main class="clients-page">
+  <div class="clients-heading">
+    <div>
+      <p class="clients-eyebrow">Relacionamentos</p>
+      <h1>Meus clientes</h1>
+      <p class="clients-subtitle">Consulte e mantenha os dados da sua base de clientes.</p>
+    </div>
+    <a class="clients-primary" href="{% url 'cli:cliente-novo' %}"><span aria-hidden="true">+</span> Novo cliente</a>
+  </div>
 
-<div class="row col-md-12 ladoe">
-    <div  class="col-md-12">
-        <ul class="breadcrumb redondo">
-            {% block breadcrumb %}
-            <li><a href="{% url 'cli:cliente' %}">Painel Clientes</a></li>
-            <!--<li>&nbsp; / &nbsp;</li>-->
-            {% endblock %}
-        </ul>
+  <section class="clients-stats" aria-label="Resumo dos clientes">
+    <article class="clients-stat"><span class="clients-stat-icon clients-icon-purple" aria-hidden="true">♙</span><div><p>Total de clientes</p><strong>{{ total_clientes }}</strong></div></article>
+    <article class="clients-stat"><span class="clients-stat-icon clients-icon-blue" aria-hidden="true">▤</span><div><p>Adicionados este mês</p><strong>{{ novos_este_mes }}</strong></div></article>
+  </section>
+
+  <section class="clients-panel">
+    <form class="clients-toolbar" method="get" action="{% url 'cli:cliente' %}">
+      <label class="clients-search"><span aria-hidden="true">⌕</span><input type="search" name="q" value="{{ pesquisa }}" placeholder="Buscar por nome, CPF ou telefone" aria-label="Buscar clientes"></label>
+      <button class="clients-search-button" type="submit">Buscar</button>
+      {% if pesquisa %}<a class="clients-clear" href="{% url 'cli:cliente' %}">Limpar</a>{% endif %}
+    </form>
+    <div class="clients-table-wrap">
+      <table class="clients-table">
+        <thead><tr><th>Cliente</th><th>CPF</th><th>Telefone</th><th class="clients-actions-heading">Ações</th></tr></thead>
+        <tbody>
+          {% for cliente in clientes %}
+          <tr>
+            <td><a class="clients-person" href="{% url 'cli:cliente_mostrar' cliente.pk %}"><span class="clients-avatar">{{ cliente.name|slice:":1"|upper }}</span><span><strong>{{ cliente.name }}</strong><small>Cadastro em {{ cliente.create_at|date:"d/m/Y" }}</small></span></a></td>
+            <td data-label="CPF">{{ cliente.cpf|default:"—" }}</td>
+            <td data-label="Telefone">{{ cliente.tel|default:"—" }}</td>
+            <td class="clients-actions" data-label="Ações"><a class="clients-action clients-edit" href="{% url 'cli:cliente_editar' cliente.pk %}">Editar</a><form method="post" action="{% url 'cli:cliente_apagar' cliente.pk %}" onsubmit="return confirm('Excluir {{ cliente.name|escapejs }}?');">{% csrf_token %}<button class="clients-action clients-delete" type="submit">Excluir</button></form></td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="4"><div class="clients-empty"><span aria-hidden="true">⌕</span><strong>Nenhum cliente encontrado</strong><p>{% if pesquisa %}Tente buscar por outro nome, CPF ou telefone.{% else %}Cadastre seu primeiro cliente para começar.{% endif %}</p>{% if not pesquisa %}<a href="{% url 'cli:cliente-novo' %}">Cadastrar cliente</a>{% endif %}</div></td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
-	<div class="col-sm-3">
-        <div class="col-md-12">
-            {% block menu_options %}
-            <ul class="breadcrumb redondo">Contas de Clientes</ul>
-            <ul>
-               <li><a href="{% url 'cli:cliente' %}">
-                    <i class="fa fa-address-book"></i>
-                    Listar Clientes
-                    </a></li>
-               <li><a href="{% url 'cli:cliente-novo' %}">
-                    <i class="fa fa-lock"></i>
-                    Novo Cliente
-                    </a>
-                </li>
-            </ul>
-            {% endblock %}
-        </div>
-    </div>
-    <div class="col-sm-9 float-right">
-	   {% block dash_content %}
-	   <div class="inner">
-	       <h2>Meus Clientes</h2>
-            <form class="" method="POST">
-                {% csrf_token %}
-                <input name="pescli" type=""></th>
-              
-                <button method="POST" class="btn btn-primary"> 
-                Pesquizar</button>
-            </form>
-                <div class="well">       
-                    <table class="table">
-                        <thead class="thead-light">
-                          <th >Nome</th>
-                          <th >CPF</th>
-                          <th ></th>
-                          <th ></th>
-                        </thead>
-                        {% for cliente in clientes %} 
-                        <tbody>
-                          <th><a href="{% url 'cli:cliente_mostrar' cliente.pk  %}">{{ cliente.name }}</a></th>
-                          <th><input style="border:0;" type="" class="id_cpf" value="{{ cliente.cpf }}"></th>
-                          <th><a href="{% url 'cli:cliente_editar' cliente.pk %}">
-                            <i class="fa fa-cog"></i>
-                            Editar
-                            </a>
-                        </th>
-                        <th><a onclick = "if (! confirm('Excluir Cliente ?')) { return false; }"class="confirmation" href="{% url 'cli:cliente_apagar' cliente.pk %}">
-                        <i class="fa fa-times-circle"></i>
-                        Excluir
-                        </a>
-                        </th>
-                        </tbody>
-                        {% empty %} 
-                        <thead>            
-                        <th><p>Nenhum cliente encontrado</p></th>
-                        {% endfor %} 
-                        </thead>
-                    </table>              
-    	       </div>
-        </div>         
-        {% endblock %}
-    </div>
-</div>
+    <footer class="clients-footer">Exibindo {{ clientes|length }}{% if pesquisa %} resultado(s){% else %} de {{ total_clientes }} clientes{% endif %}</footer>
+  </section>
+</main>
 {% endblock %}
