@@ -61,9 +61,6 @@ def carteira_apagar(request,pk):
 def carteira_amostra(request,pk):
 	template_name = 'carteira_amostra.html'
 	carteira = get_object_or_404(Carteira, pk=pk, id_cliente__id_usuario=request.user)
-	tk = []
-	lista = []
-	tokining = CarteiraToken.objects.filter(id_carteira=carteira.id)
 	w3 = Web3(HTTPProvider(settings.PROVEDOR))
 	try:
 		bal = w3.eth.get_balance(carteira.public_key)
@@ -74,6 +71,42 @@ def carteira_amostra(request,pk):
 			request,
 			'Não foi possível consultar a rede Sepolia agora. Exibindo o último saldo salvo.'
 		)
+
+	# A blockchain não fornece uma lista global de ERC-20 por endereço. Use os
+	# tokens publicados e conhecidos pelo sistema como catálogo para sincronizar.
+	contratos_token = Contrato.objects.filter(
+		tipo=1,
+		ativo=True,
+		contract_address__isnull=False,
+	).exclude(contract_address='').select_related('id_cliente')
+	erro_sincronizacao = False
+	for contrato in contratos_token:
+		token = ContratToken.objects.filter(id_contrato=contrato).first()
+		if not token:
+			continue
+		try:
+			endereco = Web3.to_checksum_address(contrato.contract_address)
+			erc20 = w3.eth.contract(address=endereco, abi=AbiToken())
+			saldo_bruto = erc20.functions.balanceOf(carteira.public_key).call()
+			saldo = saldo_token(str(saldo_bruto), token.digitos)
+			CarteiraToken.objects.update_or_create(
+				id_carteira=carteira,
+				id_token=token.id,
+				defaults={
+					'token': token.token,
+					'simbolo': token.simbolo,
+					'digitos': token.digitos,
+					'contract': endereco,
+					'saldo': saldo,
+				},
+			)
+		except Exception:
+			erro_sincronizacao = True
+			continue
+	if erro_sincronizacao:
+		messages.warning(request, 'Alguns tokens não puderam ser sincronizados com a blockchain.')
+
+	tokining = CarteiraToken.objects.filter(id_carteira=carteira.id)
 	if tokining:
 		for tk in tokining:
 			if tk.id_token:
