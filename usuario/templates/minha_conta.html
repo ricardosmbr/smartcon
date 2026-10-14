@@ -1,16 +1,44 @@
 {% extends "base.html" %}
+{% load static %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'usuario/minha-conta.css' %}">{% endblock %}
 {% block content %}
-<div class="container">
-    <div class="account-wall col">
-        <h2 class="text-center">Minha Conta</h2>
-        <p class="text-center">Bem-vindo, {{ user }}.</p>
-        <p class="text-center">Último IP registrado: {{ user.ip_last|default:"Não registrado" }}</p>
-        <ul class="list-unstyled text-center">
-            <li><a href="{% url 'usuario:editar' %}"><i class="fa fa-cog"></i> Editar Conta</a></li>
-            <li><a href="{% url 'usuario:editar_senha' %}"><i class="fa fa-lock"></i> Alterar Senha</a></li>
-            <li><a href="{% url 'usuario:usuario_apagar' user.pk %}"><i class="fa fa-times-circle"></i> Excluir Conta</a></li>
-        </ul>
-        <p class="text-center"><a href="{% url 'con:painel' %}">Voltar ao Painel</a></p>
-    </div>
-</div>
+<main class="account-page">
+    <header class="account-heading">
+        <div>
+            <p class="account-eyebrow">Configurações</p>
+            <h1>Minha conta</h1>
+            <p class="account-subtitle">Gerencie seus dados de acesso e as preferências da sua conta.</p>
+        </div>
+        <span class="account-avatar" aria-hidden="true"><i class="fas fa-user"></i></span>
+    </header>
+
+    <section class="account-profile" aria-label="Dados da conta">
+        <div class="account-profile-icon" aria-hidden="true"><i class="fas fa-user-circle"></i></div>
+        <div class="account-profile-info">
+            <p class="account-label">Conta conectada</p>
+            <h2>{{ user }}</h2>
+            <p><i class="fas fa-map-marker-alt" aria-hidden="true"></i> Último IP registrado: {{ user.ip_last|default:"Não registrado" }}</p>
+        </div>
+    </section>
+
+    <section class="account-actions" aria-label="Ações da conta">
+        <a class="account-action" href="{% url 'usuario:editar' %}">
+            <span class="account-action-icon account-action-blue" aria-hidden="true"><i class="fas fa-user-edit"></i></span>
+            <span class="account-action-copy"><strong>Editar dados</strong><small>Atualize as informações do seu perfil.</small></span>
+            <i class="fas fa-chevron-right account-chevron" aria-hidden="true"></i>
+        </a>
+        <a class="account-action" href="{% url 'usuario:editar_senha' %}">
+            <span class="account-action-icon account-action-green" aria-hidden="true"><i class="fas fa-lock"></i></span>
+            <span class="account-action-copy"><strong>Alterar senha</strong><small>Escolha uma nova senha para proteger sua conta.</small></span>
+            <i class="fas fa-chevron-right account-chevron" aria-hidden="true"></i>
+        </a>
+        <a class="account-action account-action-danger" href="{% url 'usuario:usuario_apagar' user.pk %}">
+            <span class="account-action-icon account-action-red" aria-hidden="true"><i class="fas fa-trash-alt"></i></span>
+            <span class="account-action-copy"><strong>Excluir conta</strong><small>Remova sua conta e seus dados de acesso.</small></span>
+            <i class="fas fa-chevron-right account-chevron" aria-hidden="true"></i>
+        </a>
+    </section>
+
+    <a class="account-back" href="{% url 'con:painel' %}"><i class="fas fa-arrow-left" aria-hidden="true"></i> Voltar ao painel</a>
+</main>
 {% endblock %}

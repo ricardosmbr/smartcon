@@ -81,7 +81,7 @@ def cliente_mostrar(request,pk):
 def cliente_apagar(request,pk):
 	cliente = request.cliente
 	if request.method != 'POST':
-		return redirect('cli:cliente')
+		return render(request, 'cliente_confirmar_apagar.html', {'cliente': cliente})
 	cliente.delete()
 	messages.success(request,"Cliente apagado com sucesso",extra_tags='text-success')
 	return redirect('cli:cliente')

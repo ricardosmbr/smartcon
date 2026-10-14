@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% load static %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'cliente/clients.css' %}?v=2">{% endblock %}
+{% block content %}
+<main class="clients-page">
+    <section class="clients-confirm-card" aria-labelledby="confirm-delete-title">
+        <span class="clients-confirm-icon" aria-hidden="true"><i class="fas fa-exclamation-triangle"></i></span>
+        <p class="clients-eyebrow">Confirmação</p>
+        <h1 id="confirm-delete-title">Excluir cliente?</h1>
+        <p>Tem certeza de que deseja excluir <strong>{{ cliente.name }}</strong>? Esta ação não pode ser desfeita. As carteiras e os contratos vinculados a este cliente também poderão ser removidos.</p>
+        <form method="post" class="clients-confirm-actions">
+            {% csrf_token %}
+            <button type="submit" class="clients-confirm-delete">Sim, excluir cliente</button>
+            <a href="{% url 'cli:cliente' %}" class="clients-confirm-cancel">Cancelar</a>
+        </form>
+    </section>
+</main>
+{% endblock %}

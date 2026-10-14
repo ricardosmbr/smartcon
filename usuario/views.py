@@ -77,6 +77,8 @@ def usuario_apagar(request,pk):
 @login_required
 @user_permition_required
 def usuario_del(request,pk):
-	user = User.objects.get(pk=pk)
+	if request.method != 'POST':
+		return redirect('usuario:conta')
+	user = get_object_or_404(User, pk=pk)
 	user.delete()
 	return redirect('sis:logout')

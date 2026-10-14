@@ -1,0 +1,132 @@
+.account-page {
+  width: min(100% - 40px, 920px);
+  margin: 0 auto;
+  padding: clamp(28px, 6vw, 64px) 0 48px;
+  color: #172b4d;
+}
+.account-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 30px;
+}
+.account-eyebrow, .account-label {
+  margin: 0 0 7px;
+  color: #52739d;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .11em;
+  text-transform: uppercase;
+}
+.account-heading h1 { margin: 0; font-size: clamp(30px, 5vw, 42px); font-weight: 700; }
+.account-subtitle { margin: 9px 0 0; color: #68788f; font-size: 15px; }
+.account-avatar {
+  display: grid;
+  flex: 0 0 64px;
+  width: 64px;
+  height: 64px;
+  place-items: center;
+  border-radius: 20px;
+  color: #245b9e;
+  background: #e8f0fa;
+  font-size: 25px;
+}
+.account-profile {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 24px;
+  border: 1px solid #e1e8f0;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 8px 24px rgba(23, 43, 77, .06);
+}
+.account-profile-icon { color: #245b9e; font-size: 42px; }
+.account-profile-info h2 { margin: 0 0 7px; font-size: 21px; font-weight: 700; overflow-wrap: anywhere; }
+.account-profile-info > p:last-child { margin: 0; color: #68788f; font-size: 14px; }
+.account-profile-info > p:last-child i { margin-right: 5px; }
+.account-actions { display: grid; gap: 12px; margin-top: 24px; }
+.account-action {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+  padding: 18px 20px;
+  border: 1px solid #e1e8f0;
+  border-radius: 12px;
+  color: #172b4d;
+  background: #fff;
+  text-decoration: none;
+  transition: border-color .16s ease, box-shadow .16s ease, transform .16s ease;
+}
+.account-action:hover, .account-action:focus {
+  transform: translateY(-1px);
+  border-color: #b7cce5;
+  color: #172b4d;
+  text-decoration: none;
+  box-shadow: 0 7px 18px rgba(23, 43, 77, .08);
+}
+.account-action-icon { display: grid; flex: 0 0 44px; width: 44px; height: 44px; place-items: center; border-radius: 12px; font-size: 17px; }
+.account-action-blue { color: #245b9e; background: #e8f0fa; }
+.account-action-green { color: #20805a; background: #e6f5ee; }
+.account-action-red { color: #bd4545; background: #fbeaea; }
+.account-action-copy { display: grid; flex: 1; min-width: 0; gap: 4px; }
+.account-action-copy strong { font-size: 15px; }
+.account-action-copy small { color: #68788f; font-size: 13px; }
+.account-chevron { color: #94a3b8; font-size: 13px; }
+.account-action-danger .account-action-copy strong { color: #a93434; }
+.account-back { display: inline-flex; align-items: center; gap: 8px; margin-top: 26px; color: #245b9e; font-size: 14px; font-weight: 600; text-decoration: none; }
+.account-back:hover, .account-back:focus { color: #174579; text-decoration: underline; }
+.account-form-card {
+  padding: clamp(20px, 4vw, 34px);
+  border: 1px solid #e1e8f0;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 8px 24px rgba(23, 43, 77, .06);
+}
+.account-field { display: grid; gap: 7px; margin-bottom: 20px; }
+.account-field label { margin: 0; color: #344967; font-size: 14px; font-weight: 600; }
+.account-field input, .account-field select, .account-field textarea {
+  display: block;
+  width: 100%;
+  min-height: 46px;
+  padding: 10px 13px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  color: #172b4d;
+  background: #fff;
+  box-shadow: none;
+  font: inherit;
+  transition: border-color .16s ease, box-shadow .16s ease;
+}
+.account-field input:focus, .account-field select:focus, .account-field textarea:focus { outline: 0; border-color: #4383c5; box-shadow: 0 0 0 3px rgba(67, 131, 197, .16); }
+.account-field.has-error input, .account-field.has-error select, .account-field.has-error textarea { border-color: #c54c4c; }
+.account-help { color: #68788f; font-size: 12px; }
+.account-field-error, .account-error { color: #a93434; font-size: 13px; }
+.account-field-error ul, .account-error ul { margin: 0; padding-left: 18px; }
+.account-error { margin-bottom: 18px; padding: 11px 13px; border-radius: 8px; background: #fbeaea; }
+.account-success { display: flex; align-items: center; gap: 9px; margin-bottom: 22px; padding: 12px 14px; border-radius: 8px; color: #176744; background: #e6f5ee; font-size: 14px; }
+.account-form-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding-top: 6px; }
+.account-save, .account-cancel { display: inline-flex; min-height: 44px; align-items: center; justify-content: center; gap: 8px; padding: 10px 17px; border: 0; border-radius: 8px; font: inherit; font-size: 14px; font-weight: 600; text-decoration: none; cursor: pointer; }
+.account-save { color: #fff; background: #245b9e; }
+.account-save:hover, .account-save:focus { color: #fff; background: #174579; }
+.account-cancel { color: #344967; background: #edf1f6; }
+.account-cancel:hover, .account-cancel:focus { color: #172b4d; background: #dfe6ef; text-decoration: none; }
+.account-delete-avatar { color: #bd4545; background: #fbeaea; }
+.account-delete-card { padding: clamp(22px, 4vw, 34px); border: 1px solid #f0d6d6; border-radius: 14px; background: #fff; box-shadow: 0 8px 24px rgba(23, 43, 77, .06); }
+.account-delete-card h2 { margin: 0; color: #172b4d; font-size: 20px; font-weight: 700; }
+.account-delete-card > p { margin: 10px 0 24px; color: #68788f; font-size: 14px; line-height: 1.6; }
+.account-delete-card > p strong { color: #344967; }
+.account-delete-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.account-delete-confirm { display: inline-flex; min-height: 44px; align-items: center; justify-content: center; gap: 8px; padding: 10px 17px; border: 0; border-radius: 8px; color: #fff; background: #bd4545; font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; }
+.account-delete-confirm:hover, .account-delete-confirm:focus { background: #a93434; }
+@media (max-width: 600px) {
+  .account-page { width: min(100% - 28px, 920px); padding-top: 30px; }
+  .account-heading { align-items: flex-start; }
+  .account-avatar { flex-basis: 48px; width: 48px; height: 48px; border-radius: 15px; font-size: 20px; }
+  .account-profile { align-items: flex-start; gap: 13px; padding: 18px; }
+  .account-profile-icon { font-size: 34px; }
+  .account-action { gap: 12px; padding: 15px; }
+  .account-action-copy small { line-height: 1.45; }
+}

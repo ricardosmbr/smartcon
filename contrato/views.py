@@ -31,10 +31,10 @@ def contrato(request):
 	context = {
 		'dashboard': True,
 		'cliente':cliente,
+		'total_clientes': cliente.count(),
+		'total_carteiras': Carteira.objects.filter(id_cliente__id_usuario=request.user).count(),
 		'total_contratos': contratos.count(),
 		'publicados': contratos.filter(ativo=True).count(),
-		'pendentes': contratos.filter(Q(ativo=False) | Q(ativo__isnull=True)).count(),
-		'novos_este_mes': contratos.filter(create_at__year=hoje.year, create_at__month=hoje.month).count(),
 		'ultimos_contratos': contratos.order_by('-create_at')[:5],
 	}
 	return render(request, template_name,context)

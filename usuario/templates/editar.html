@@ -1,46 +1,36 @@
 {% extends "base.html" %}
+{% load static %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'usuario/minha-conta.css' %}">{% endblock %}
 {% block content %}
-<div class="container" >
-    <div class="account-wall col" >
-		<h2 class="text-center">Editando Conta</h2>
-		<form class="form-signin text-center" method="POST">
-			{% csrf_token %}
-			{% if success %}
-			<div class="text-success">
-	            <h5>Os dados foram auterados com sucesso</h5>
-			</div>
-			{% endif %}
-			<fieldset class="resset">		
-				<div class="erro_login">
-			  		{{ form.non_field_errors }}
-			 	</div>
-			  		{% for field in form %}
-			  	<div class="geral_lin">
-	                <div class="geral_label">
-			  			{{ field.label_tag }}
-			  		</div>
-	                <div class="geral_field ">
-			  			{{ field }}
-			  		</div>
-			  	</div>
-			  	 <div class="erro_login">	
-			  		{{ field.errors }}
-			  	</div>
-				  	{% endfor %}
+<main class="account-page">
+    <header class="account-heading">
+        <div>
+            <p class="account-eyebrow">Configurações da conta</p>
+            <h1>Editar dados</h1>
+            <p class="account-subtitle">Mantenha suas informações pessoais atualizadas.</p>
+        </div>
+        <span class="account-avatar" aria-hidden="true"><i class="fas fa-user-edit"></i></span>
+    </header>
 
-			  	<div class="">
-			  		<br />
-			  		<button type="submit" class="btn btn-lg btn-secondary">
-			  			Salvar Modificações
-			  		</button>
-                    <a href="{% url 'usuario:conta' %}">
-	                        <button type="button"  class="btn btn-lg btn-danger">
-	                            Cancelar
-	                        </button>
-	                    </a>
-			  	</div>
-			</fieldset>
-		</form>  
-	</div>
-</div>      
+    <section class="account-form-card">
+        {% if success %}<div class="account-success" role="status"><i class="fas fa-check-circle" aria-hidden="true"></i> Seus dados foram atualizados com sucesso.</div>{% endif %}
+        <form method="post" novalidate>
+            {% csrf_token %}
+            {% if form.non_field_errors %}<div class="account-error" role="alert">{{ form.non_field_errors }}</div>{% endif %}
+            {% for field in form %}
+                <div class="account-field{% if field.errors %} has-error{% endif %}">
+                    {{ field.label_tag }}
+                    {{ field }}
+                    {% if field.help_text %}<small class="account-help">{{ field.help_text }}</small>{% endif %}
+                    {% for error in field.errors %}<small class="account-field-error">{{ error }}</small>{% endfor %}
+                </div>
+            {% endfor %}
+            <div class="account-form-actions">
+                <button type="submit" class="account-save"><i class="fas fa-check" aria-hidden="true"></i> Salvar alterações</button>
+                <a class="account-cancel" href="{% url 'usuario:conta' %}">Cancelar</a>
+            </div>
+        </form>
+    </section>
+    <a class="account-back" href="{% url 'usuario:conta' %}"><i class="fas fa-arrow-left" aria-hidden="true"></i> Voltar à minha conta</a>
+</main>
 {% endblock %}

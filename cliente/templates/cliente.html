@@ -32,7 +32,7 @@
             <td><a class="clients-person" href="{% url 'cli:cliente_mostrar' cliente.pk %}"><span class="clients-avatar">{{ cliente.name|slice:":1"|upper }}</span><span><strong>{{ cliente.name }}</strong><small>Cadastro em {{ cliente.create_at|date:"d/m/Y" }}</small></span></a></td>
             <td data-label="CPF">{{ cliente.cpf|default:"—" }}</td>
             <td data-label="Telefone">{{ cliente.tel|default:"—" }}</td>
-            <td class="clients-actions" data-label="Ações"><a class="clients-action clients-edit" href="{% url 'cli:cliente_editar' cliente.pk %}">Editar</a><form method="post" action="{% url 'cli:cliente_apagar' cliente.pk %}" onsubmit="return confirm('Excluir {{ cliente.name|escapejs }}?');">{% csrf_token %}<button class="clients-action clients-delete" type="submit">Excluir</button></form></td>
+            <td class="clients-actions" data-label="Ações"><a class="clients-action clients-edit" href="{% url 'cli:cliente_editar' cliente.pk %}">Editar</a><a class="clients-action clients-delete" href="{% url 'cli:cliente_apagar' cliente.pk %}">Excluir</a></td>
           </tr>
           {% empty %}
           <tr><td colspan="4"><div class="clients-empty"><span aria-hidden="true">⌕</span><strong>Nenhum cliente encontrado</strong><p>{% if pesquisa %}Tente buscar por outro nome, CPF ou telefone.{% else %}Cadastre seu primeiro cliente para começar.{% endif %}</p>{% if not pesquisa %}<a href="{% url 'cli:cliente-novo' %}">Cadastrar cliente</a>{% endif %}</div></td></tr>

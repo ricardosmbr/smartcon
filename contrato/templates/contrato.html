@@ -12,8 +12,8 @@
   <section class="contracts-stats" aria-label="Resumo de contratos">
     <article class="contracts-stat"><span class="contracts-stat-icon contracts-purple" aria-hidden="true">▤</span><div><p>Total de contratos</p><strong>{{ total_contratos }}</strong></div></article>
     <article class="contracts-stat"><span class="contracts-stat-icon contracts-green" aria-hidden="true">✓</span><div><p>Publicados</p><strong>{{ publicados }}</strong></div></article>
-    <article class="contracts-stat"><span class="contracts-stat-icon contracts-amber" aria-hidden="true">◷</span><div><p>Em preparação</p><strong>{{ pendentes }}</strong></div></article>
-    <article class="contracts-stat"><span class="contracts-stat-icon contracts-blue" aria-hidden="true">＋</span><div><p>Novos este mês</p><strong>{{ novos_este_mes }}</strong></div></article>
+    <article class="contracts-stat"><span class="contracts-stat-icon contracts-amber" aria-hidden="true">♙</span><div><p>Clientes</p><strong>{{ total_clientes }}</strong></div></article>
+    <article class="contracts-stat"><span class="contracts-stat-icon contracts-blue" aria-hidden="true">▣</span><div><p>Carteiras</p><strong>{{ total_carteiras }}</strong></div></article>
   </section>
 
   {% else %}<a class="contracts-back" href="{% url 'con:painel' %}">← Voltar ao painel</a>{% endif %}
