@@ -75,36 +75,35 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'smartcon.wsgi.application'
+
+# import dj_database_url
+
+# default_dburl = 'sqlite:///' + os.path.join(BASE_DIR, 'db.sqlite3')
+# DATABASES = {
+#     'default': dj_database_url.config(default=default_dburl),
+# }
+
+
+# WSGI_APPLICATION = 'smartcon.wsgi.application'
 
 
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
 
-import dj_database_url
-
-default_dburl = 'sqlite:///' + os.path.join(BASE_DIR, 'db.sqlite3')
 DATABASES = {
-    'default': dj_database_url.config(default=default_dburl),
+    'default': {
+        'ENGINE': 'mssql',
+        'NAME': config('DB_NAME', default='free-sql-db-7969029'),
+        'USER': config('DB_USER', default='ricardosm'),
+        'PASSWORD': config('DB_PASSWORD'),
+        'HOST': config('DB_HOST', default='sysconci.database.windows.net'),
+        'PORT': config('DB_PORT', default='1433'),
+        'OPTIONS': {
+            'driver': 'ODBC Driver 18 for SQL Server',
+            'extra_params': 'Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30',
+        },
+    }
 }
-
-#DATABASES = {
-#    'default': {
-#        'ENGINE': 'django.db.backends.sqlite3',
-#        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-#    }
-#}
-#
-#DATABASES = {
-#    'default': {
-#        'ENGINE': 'django.db.backends.mysql',
-#        'NAME': 'servipec_bit',
-#        'USER': 'root',
-#        'PASSWORD': '2323',
-#        'HOST': 'localhost',
-#    }
-#}
-#
 # Password validation
 # https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators
 
