@@ -13,9 +13,14 @@ class PasswordResetForm(forms.Form):
 
 	def clean_email(self):
 		email = self.cleaned_data['email']
-		if User.objects.filter(email=email).exists():
-			return email
-		raise forms.ValidationError('Nenhum usuário encontrado com este e-mail')
+		user_count = User.objects.filter(email=email).count()
+		if user_count == 0:
+			raise forms.ValidationError('Nenhum usuário encontrado com este e-mail')
+		if user_count > 1:
+			raise forms.ValidationError(
+				'Mais de um usuário foi encontrado com este e-mail. Entre em contato com o suporte.'
+			)
+		return email
 
 	def save(self):
 		user = User.objects.get(email=self.cleaned_data['email'])
